@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from pygame import Vector2
 import math
+from objects import Rectangle
 
 pygame.init()
 
@@ -87,9 +88,9 @@ class Square:
             self.y += y
             self.centery += y
 
-#Test primer
-"""
-def DrawLineInBetween():
+#Test example
+
+def DrawLineInBetween(sqr1, sqr2):
     #draw a line between the 2 squares, get gradient
     #to avoid divide by zero
     if abs(sqr1.x - sqr2.x) == 0:
@@ -100,7 +101,6 @@ def DrawLineInBetween():
         left = sqr1 if sqr1.x < sqr2.x else sqr2
         right = sqr1 if left == sqr2 else sqr2
         gradient = ((left.y - right.y)/abs(sqr1.x - sqr2.x))
-    #print("gradient:",gradient)
 
     #get the middle point between the centers of the squares
     middle = (max(sqr1.x + sqr1.w//2, sqr2.x + sqr2.w//2) - abs(sqr1.x - sqr2.x)//2,
@@ -129,8 +129,8 @@ def DrawLineInBetween():
     return line
 
 
-sqr1 = Square(100,100,50)
-sqr2 = Square(200,100,50)
+sqr1 = Rectangle(250,100,3,4,50)
+sqr2 = Rectangle(200,100,3,4,50)
 
 Clock = pygame.time.Clock()
 
@@ -140,14 +140,14 @@ key = ""
 while running:
     screen.fill((0,0,0))
 
-    sqr1.Draw(outline=True)
-    sqr2.Draw()
-    line = DrawLineInBetween()
+    sqr1.draw(screen)
+    sqr2.draw(screen)
+    #line = DrawLineInBetween(sqr1, sqr2)
 
-    for sqr_line in sqr1.Lines():
-        pt = LineIntersect(line,sqr_line)
-        if pt:
-            pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
+    #for sqr_line in sqr1.Lines():
+        #pt = LineIntersect(line,sqr_line)
+        #if pt:
+           # pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
 
     if key == "s":
         sqr1.y += 1
@@ -171,7 +171,7 @@ while running:
             key = e.unicode
         if e.type == KEYUP:
             key = ""
-"""
+
     
 
 
