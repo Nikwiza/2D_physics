@@ -35,7 +35,7 @@ def LineIntersect(line1, line2):
         point.y = y1 + t * (y2 - y1)
         return point
     return
-
+"""""
 class Square:
     def __init__(self, x, y, w):
         self.x = x
@@ -52,33 +52,9 @@ class Square:
         else:
             pygame.draw.rect(screen,self.col,(self.x,self.y,self.w,self.w))
 
-    def GetCorner(self, tempX, tempY):
-        angle = math.radians(self.rotation_angle)
-        #apply rotation
-        rotatedX = tempX*math.cos(angle) - tempY*math.sin(angle)
-        rotatedY = tempX*math.sin(angle) + tempY*math.cos(angle)
-        #translate
-        x = rotatedX + self.centerx
-        y = rotatedY + self.centery
-
-        return Vector2(x,y)
+   
     
-    def Outline(self):
-        for point1, point2 in self.Lines():
-            pygame.draw.line(screen,self.col,point1,point2,1)
     
-    def Lines(self):
-        lines = []
-        top_left = self.GetCorner(self.x - self.centerx, self.y - self.centery)
-        top_right = self.GetCorner(self.x + self.w - self.centerx, self.y - self.centery)
-        bottom_left = self.GetCorner(self.x - self.centerx, self.y + self.w - self.centery)
-        bottom_right = self.GetCorner(self.x + self.w - self.centerx, self.y + self.w - self.centery)
-
-        lines.append((top_left, top_right))
-        lines.append((top_left, bottom_left))
-        lines.append((bottom_right, top_right))
-        lines.append((bottom_right, bottom_left))
-        return lines
 
     def Move(self, x=None, y=None):
         if x:
@@ -87,7 +63,7 @@ class Square:
         if y:
             self.y += y
             self.centery += y
-
+"""""
 #Test example
 
 def DrawLineInBetween(sqr1, sqr2):
@@ -103,8 +79,8 @@ def DrawLineInBetween(sqr1, sqr2):
         gradient = ((left.y - right.y)/abs(sqr1.x - sqr2.x))
 
     #get the middle point between the centers of the squares
-    middle = (max(sqr1.x + sqr1.w//2, sqr2.x + sqr2.w//2) - abs(sqr1.x - sqr2.x)//2,
-              max(sqr1.y + sqr1.w//2, sqr2.y + sqr2.w//2) - abs(sqr1.y - sqr2.y)//2)
+    middle = (max(sqr1.x + sqr1.width//2, sqr2.x + sqr2.width//2) - abs(sqr1.x - sqr2.x)//2,
+              max(sqr1.y + sqr1.width//2, sqr2.y + sqr2.width//2) - abs(sqr1.y - sqr2.y)//2)
     #to avoid divide by 0
     if gradient == 0:
         point1 = Vector2(middle[0], middle[1] + 100)
@@ -129,8 +105,8 @@ def DrawLineInBetween(sqr1, sqr2):
     return line
 
 
-sqr1 = Rectangle(250,100,3,4,50)
-sqr2 = Rectangle(200,100,3,4,50)
+sqr1 = Rectangle(250,100,1000,0.2,50)
+sqr2 = Rectangle(200,100,1000,0.2,50)
 
 Clock = pygame.time.Clock()
 
@@ -142,12 +118,12 @@ while running:
 
     sqr1.draw(screen)
     sqr2.draw(screen)
-    #line = DrawLineInBetween(sqr1, sqr2)
+    line = DrawLineInBetween(sqr1, sqr2)
 
-    #for sqr_line in sqr1.Lines():
-        #pt = LineIntersect(line,sqr_line)
-        #if pt:
-           # pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
+    for sqr_line in sqr1.Lines():
+        pt = LineIntersect(line,sqr_line)
+        if pt:
+            pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
 
     if key == "s":
         sqr1.y += 1

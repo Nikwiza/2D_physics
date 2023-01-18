@@ -1,6 +1,9 @@
 import pygame
 from euler_meth import eulerN
+from pygame import Vector2
 from numpy import pi
+import math
+from pygame.locals import *
 
 #################################
 #     OBJECT TEMPLATES MADE     #
@@ -50,13 +53,56 @@ class Rectangle:
         self.surface = height*width
 
         if width == -1:
-            width = height
-        
-        self.width = width
+            self.width = height
+
+        self.centerx = self.x + width//2
+        self.centery = self.y + width//2
+        self.col = (255, 0, 0)
+        self.rotation_angle = 0
+
         collidable.append(self)
 
-    def draw(self, win):
-        pygame.draw.rect(win,(0,0,255), (self.x, self.y, self.width, self.height))
+    def GetCorner(self, tempX, tempY):
+        angle = math.radians(self.rotation_angle)
+        #apply rotation
+        rotatedX = tempX*math.cos(angle) - tempY*math.sin(angle)
+        rotatedY = tempX*math.sin(angle) + tempY*math.cos(angle)
+        #translate
+        x = rotatedX + self.centerx
+        y = rotatedY + self.centery
+
+        return Vector2(x,y)
+
+    def Outline(self, win):
+        for point1, point2 in self.Lines():
+            pygame.draw.line(win,self.col,point1,point2,1)
+    
+    def Lines(self):
+        lines = []
+        top_left = self.GetCorner(self.x - self.centerx, self.y - self.centery)
+        top_right = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery)
+        bottom_left = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery)
+        bottom_right = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery)
+
+        lines.append((top_left, top_right))
+        lines.append((top_left, bottom_left))
+        lines.append((bottom_right, top_right))
+        lines.append((bottom_right, bottom_left))
+        return lines
+
+    def draw(self, win, outline=False):
+        if outline:
+            self.Outline()
+        else:
+            pygame.draw.rect(win,(0,0,255), (self.x, self.y, self.width, self.height))
+    
+    def Move(self, x=None, y=None):
+        if x:
+            self.x += x
+            self.centerx += x
+        if y:
+            self.y += y
+            self.centery += y
 
 
 
