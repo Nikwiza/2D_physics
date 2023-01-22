@@ -42,7 +42,6 @@ class Circle:
 
 class Rectangle:
     def __init__(self, x, y, mass, friction, height, width=-1):
-
         self.mass = mass
         self.friction = friction
         self.x = x
@@ -50,15 +49,24 @@ class Rectangle:
         self.height = height
         self.force = [0.,0.]
         self.vel = [0.,0.]
-        self.surface = height*width
 
         if width == -1:
             self.width = height
+        else:
+            self.width = width
 
-        self.centerx = self.x + width//2
-        self.centery = self.y + width//2
+        self.surface = self.height*self.width
+
+        self.centerx = self.x + self.width//2
+        self.centery = self.y + self.height//2
         self.col = (255, 0, 0)
         self.rotation_angle = 0
+
+        #vertices
+        self.v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left
+        self.v2 = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery) #top, right
+        self.v3 = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery) #bottom, left
+        self.v4 = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery) #bottom, right
 
         collidable.append(self)
 
@@ -103,6 +111,10 @@ class Rectangle:
         if y:
             self.y += y
             self.centery += y
+    
+    def changeColor(self, win):
+        pygame.draw.rect(win,(255,0,0), (self.x, self.y, self.width, self.height))
+    
 
 
 

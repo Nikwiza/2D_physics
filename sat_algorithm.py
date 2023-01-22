@@ -2,7 +2,8 @@ import pygame
 from pygame.locals import *
 from pygame import Vector2
 import math
-from objects import Rectangle
+from objects import *
+import sat_test
 
 pygame.init()
 
@@ -29,44 +30,16 @@ def LineIntersect(line1, line2):
     t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))/den
     u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2))/den
 
-    if t >= 0 and t <= 1 and u >= 0 and u <= 1:
+    if t > 0 and t < 1 and u > 0 and u < 1:
         point = Vector2()
         point.x = x1 + t * (x2 - x1)
         point.y = y1 + t * (y2 - y1)
         return point
     return
-"""""
-class Square:
-    def __init__(self, x, y, w):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.centerx = self.x + w//2
-        self.centery = self.y + w//2
-        self.col = (255, 0, 0)
-        self.rotation_angle = 0
-
-    def Draw(self, outline = False):
-        if outline:
-            self.Outline()
-        else:
-            pygame.draw.rect(screen,self.col,(self.x,self.y,self.w,self.w))
-
-   
-    
-    
-
-    def Move(self, x=None, y=None):
-        if x:
-            self.x += x
-            self.centerx += x
-        if y:
-            self.y += y
-            self.centery += y
-"""""
-#Test example
 
 def DrawLineInBetween(sqr1, sqr2):
+    #print(sqr1.centerx)
+    #print(sqr1.centery)
     #draw a line between the 2 squares, get gradient
     #to avoid divide by zero
     if abs(sqr1.x - sqr2.x) == 0:
@@ -105,9 +78,35 @@ def DrawLineInBetween(sqr1, sqr2):
     return line
 
 
-sqr1 = Rectangle(250,100,1000,0.2,50)
-sqr2 = Rectangle(200,100,1000,0.2,50)
+def CircleRect(circle, rect):
+    testX = circle.x
+    testY = circle.y
 
+    if(circle.x < rect.x):
+        testX = rect.x #left edge
+    elif(circle.x > (rect.x + rect.width)):
+        testX = rect.x + rect.width #right edge
+    
+    if(circle.y < rect.y):
+        testY = rect.y #top edge
+    elif(circle.y > rect.y + rect.height):
+        testY = rect.y + rect.height #bottom edge
+    
+    distX = circle.x - testX
+    distY = circle.y - testY
+    distance = math.sqrt((distX**2) + (distY**2))
+
+    if(distance <= circle.circumference):
+        return True
+    
+    return False
+
+
+#Test example
+
+sqr1 = Rectangle(250,150,1000,0.2,50)
+sqr2 = Rectangle(320,120,1000,0.2,50)
+circle = Circle(150, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
 running = True
@@ -118,12 +117,26 @@ while running:
 
     sqr1.draw(screen)
     sqr2.draw(screen)
+    #circle.draw(screen)
     line = DrawLineInBetween(sqr1, sqr2)
 
-    for sqr_line in sqr1.Lines():
-        pt = LineIntersect(line,sqr_line)
-        if pt:
-            pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
+    #for sqr_line1 in sqr1.Lines() and sqr_line2 in sqr2.Lines():
+       #pt1 = LineIntersect(line,sqr_line1)
+       #pt2 = LineIntersect(line, sqr_line2)
+       #if pt1 and pt2:
+       #     pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
+
+
+    if(sat_test.IntersectPolygons([sqr1.v1, sqr1.v2, sqr1.v3, sqr1.v4], [sqr2.v1, sqr2.v2, sqr2.v3, sqr2.v4])):
+       sqr2.changeColor(screen)
+    else:
+       sqr2.draw(screen)
+   # if(CircleRect(circle, sqr2)):
+        #sqr2.changeColor(screen)
+      #  sqr2.x = 0
+     #   sqr2.y = 0
+    #else:
+     #   sqr2.draw(screen)
 
     if key == "s":
         sqr1.y += 1
