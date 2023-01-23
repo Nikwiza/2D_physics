@@ -59,14 +59,8 @@ class Rectangle:
 
         self.centerx = self.x + self.width//2
         self.centery = self.y + self.height//2
-        self.col = (255, 0, 0)
+        self.col = (0, 0, 255)
         self.rotation_angle = 0
-
-        #vertices
-        self.v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left
-        self.v2 = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery) #top, right
-        self.v3 = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery) #bottom, left
-        self.v4 = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery) #bottom, right
 
         collidable.append(self)
 
@@ -98,11 +92,18 @@ class Rectangle:
         lines.append((bottom_right, bottom_left))
         return lines
 
+    def Vertices(self):
+        v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left
+        v2 = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery) #top, right
+        v3 = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery) #bottom, left
+        v4 = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery) #bottom, right
+        return [v1, v2, v3, v4]
+        
     def draw(self, win, outline=False):
         if outline:
             self.Outline()
         else:
-            pygame.draw.rect(win,(0,0,255), (self.x, self.y, self.width, self.height))
+            pygame.draw.rect(win,self.col, (self.x, self.y, self.width, self.height))
     
     def Move(self, x=None, y=None):
         if x:
@@ -112,8 +113,8 @@ class Rectangle:
             self.y += y
             self.centery += y
     
-    def changeColor(self, win):
-        pygame.draw.rect(win,(255,0,0), (self.x, self.y, self.width, self.height))
+    def changeColor(self, col):
+        self.col = col
     
 
 

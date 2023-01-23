@@ -1,82 +1,68 @@
-import pygame
 from pygame.locals import *
 from pygame import Vector2
-import math
 from objects import *
-import sat_test
 
 pygame.init()
 
 screen = pygame.display.set_mode((500,500))
 
-#Algorithm to find if 2 lines intersect
-def LineIntersect(line1, line2):
-    #line1 = ((x1, y1), (x2, y2))
-    x1 = line1[0].x
-    y1 = line1[0].y
-    x2 = line1[1].x
-    y2 = line1[1].y
-    #line2 = ((x3, y3), (x4, y4))
-    x3 = line2[0].x
-    y3 = line2[0].y
-    x4 = line2[1].x
-    y4 = line2[1].y
+def IntersectPolygons(verticesA, verticesB):
+    for i in range(len(verticesA)):
+        v1 = verticesA[i] 
+        v2 = verticesA[(i+1)%len(verticesA)]
+        #edge of the polygon
+        edge = v2 - v1
+        #axis that we will project our vertices on
+        axis = Vector2(-edge.y, edge.x)
 
-    den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-    #can't divide by 0
-    if den == 0:
-        return
+        [minA, maxA] = ProjectVertices(verticesA, axis)
+        [minB, maxB] = ProjectVertices(verticesB, axis)
+
+        if(minA >= maxB or minB >= maxA):
+            return False
     
-    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))/den
-    u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2))/den
+    for i in range(len(verticesB)):
+        v1 = verticesB[i]
+        v2 = verticesB[(i+1)%len(verticesB)]
+        #edge of the polygon
+        edge = v2 - v1
+        #axis that we will project our vertices on
+        axis = Vector2(-edge.y, edge.x)
 
-    if t > 0 and t < 1 and u > 0 and u < 1:
-        point = Vector2()
-        point.x = x1 + t * (x2 - x1)
-        point.y = y1 + t * (y2 - y1)
-        return point
-    return
+        [minA, maxA] = ProjectVertices(verticesA, axis)
+        [minB, maxB] = ProjectVertices(verticesB, axis)
 
-def DrawLineInBetween(sqr1, sqr2):
-    #print(sqr1.centerx)
-    #print(sqr1.centery)
-    #draw a line between the 2 squares, get gradient
-    #to avoid divide by zero
-    if abs(sqr1.x - sqr2.x) == 0:
-        gradient = "infinity"
-    else:
-        #rise over run
-        #left - right = run
-        left = sqr1 if sqr1.x < sqr2.x else sqr2
-        right = sqr1 if left == sqr2 else sqr2
-        gradient = ((left.y - right.y)/abs(sqr1.x - sqr2.x))
+        if(minA >= maxB or minB >= maxA):
+            return False
+    
+    return True
+        
 
-    #get the middle point between the centers of the squares
-    middle = (max(sqr1.x + sqr1.width//2, sqr2.x + sqr2.width//2) - abs(sqr1.x - sqr2.x)//2,
-              max(sqr1.y + sqr1.width//2, sqr2.y + sqr2.width//2) - abs(sqr1.y - sqr2.y)//2)
-    #to avoid divide by 0
-    if gradient == 0:
-        point1 = Vector2(middle[0], middle[1] + 100)
-        point2 = Vector2(middle[0], middle[1] - 100)
-    elif gradient == "infinity":
-        point1 = Vector2(middle[0] - 100, middle[1])
-        point2 = Vector2(middle[0] + 100, middle[1])        
-    else:
-        #get normal of line
-        gradient = -1/gradient
-        #print("normal:",gradient)
+def ProjectVertices(vertices, axis):
+    min = Vector2.dot(vertices[0], axis)
+    max = Vector2.dot(vertices[0], axis) 
 
-        point1 = Vector2(middle[0] + 100, middle[1] + int(-100 * gradient))
-        point2 = Vector2(middle[0] - 100, middle[1] + int(100 * gradient))
-        #print(point1)
-        #print(point2)
-        #print(middle)
+    for v in vertices:
+        #projection of a vertice onto an axis
+        proj = Vector2.dot(v, axis) 
 
-    pygame.draw.line(screen,(0,255,0),point1,point2,1)
+        if proj < min:
+            min = proj
+        
+        if proj > max:
+            max = proj
+    
+    return [min, max]
 
-    line = (point1, point2)
-    return line
-
+def RectanglesOverlap(rect1, rect2):
+    # Check for overlap in the x dimension
+    if rect1.x > rect2.x + rect2.width or rect2.x > rect1.x + rect1.width:
+        return False
+    # Check for overlap in the y dimension
+    if rect1.y > rect2.y + rect2.height or rect2.y > rect1.y + rect1.height:
+        return False
+    # If we've made it this far, the rectangles are overlapping
+    return True
 
 def CircleRect(circle, rect):
     testX = circle.x
@@ -100,52 +86,29 @@ def CircleRect(circle, rect):
         return True
     
     return False
-
-
-#Test example
-
+    
 sqr1 = Rectangle(250,150,1000,0.2,50)
-sqr2 = Rectangle(190,150,1000,0.2,50)
-circle = Circle(150, 100, 1, 1, 20)
-Clock = pygame.time.Clock()
+sqr2 = Rectangle(120,150,1000,0.2,50)
+
 
 running = True
 key = ""
+circle = Circle(150, 100, 1, 1, 20)
+Clock = pygame.time.Clock()
 
 while running:
     screen.fill((0,0,0))
 
     sqr1.draw(screen)
     sqr2.draw(screen)
-    #circle.draw(screen)
-    line = DrawLineInBetween(sqr1, sqr2)
-    pt1, pt2 = 0, 0
-    
-    for sqr_line in sqr1.Lines():
-       pt1 = LineIntersect(line,sqr_line)
-       if pt1 and pt2:
-            pygame.draw.circle(screen,(0,255,255),(int(pt1.x),int(pt1.y)),5)
-    
-    for sqr_line in sqr2.Lines():
-       pt2 = LineIntersect(line,sqr_line)
-       if pt2 and pt1:
-            pygame.draw.circle(screen,(0,255,255),(int(pt2.x),int(pt2.y)),5)
-    
-        
-        
-    
-    #VerticesA = [sqr1.v1, sqr1.v2, sqr1.v3, sqr1.v4]
-    #VerticesB = [sqr2.v1, sqr2.v2, sqr2.v3, sqr2.v4]
-    #if(sat_test.IntersectPolygons(VerticesA, VerticesB, [sqr1.width, sqr2.width], [sqr1.height, sqr2.height])):
-     #  sqr2.changeColor(screen)
-    #else:
-     #  sqr2.draw(screen)
-   # if(CircleRect(circle, sqr2)):
-        #sqr2.changeColor(screen)
-      #  sqr2.x = 0
-     #   sqr2.y = 0
-    #else:
-     #   sqr2.draw(screen)
+
+    vertices1 = sqr1.Vertices()
+    vertices2 = sqr2.Vertices()
+
+    if IntersectPolygons(vertices1, vertices2) and RectanglesOverlap(sqr1, sqr2):
+        sqr2.changeColor(col=(0,0,0))
+    else:
+        sqr2.changeColor(col=(0,0,255))
 
     if key == "s":
         sqr1.y += 1
@@ -169,6 +132,12 @@ while running:
             key = e.unicode
         if e.type == KEYUP:
             key = ""
+
+
+
+
+
+
 
     
 
