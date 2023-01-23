@@ -105,7 +105,7 @@ def CircleRect(circle, rect):
 #Test example
 
 sqr1 = Rectangle(250,150,1000,0.2,50)
-sqr2 = Rectangle(320,120,1000,0.2,50)
+sqr2 = Rectangle(190,150,1000,0.2,50)
 circle = Circle(150, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
@@ -119,18 +119,27 @@ while running:
     sqr2.draw(screen)
     #circle.draw(screen)
     line = DrawLineInBetween(sqr1, sqr2)
-
-    #for sqr_line1 in sqr1.Lines() and sqr_line2 in sqr2.Lines():
-       #pt1 = LineIntersect(line,sqr_line1)
-       #pt2 = LineIntersect(line, sqr_line2)
-       #if pt1 and pt2:
-       #     pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
-
-
-    if(sat_test.IntersectPolygons([sqr1.v1, sqr1.v2, sqr1.v3, sqr1.v4], [sqr2.v1, sqr2.v2, sqr2.v3, sqr2.v4])):
-       sqr2.changeColor(screen)
-    else:
-       sqr2.draw(screen)
+    pt1, pt2 = 0, 0
+    
+    for sqr_line in sqr1.Lines():
+       pt1 = LineIntersect(line,sqr_line)
+       if pt1 and pt2:
+            pygame.draw.circle(screen,(0,255,255),(int(pt1.x),int(pt1.y)),5)
+    
+    for sqr_line in sqr2.Lines():
+       pt2 = LineIntersect(line,sqr_line)
+       if pt2 and pt1:
+            pygame.draw.circle(screen,(0,255,255),(int(pt2.x),int(pt2.y)),5)
+    
+        
+        
+    
+    #VerticesA = [sqr1.v1, sqr1.v2, sqr1.v3, sqr1.v4]
+    #VerticesB = [sqr2.v1, sqr2.v2, sqr2.v3, sqr2.v4]
+    #if(sat_test.IntersectPolygons(VerticesA, VerticesB, [sqr1.width, sqr2.width], [sqr1.height, sqr2.height])):
+     #  sqr2.changeColor(screen)
+    #else:
+     #  sqr2.draw(screen)
    # if(CircleRect(circle, sqr2)):
         #sqr2.changeColor(screen)
       #  sqr2.x = 0

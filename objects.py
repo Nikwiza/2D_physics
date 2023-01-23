@@ -71,15 +71,15 @@ class Rectangle:
         collidable.append(self)
 
     def GetCorner(self, tempX, tempY):
+        #translate
+        x = tempX + self.centerx
+        y = tempY + self.centery
         angle = math.radians(self.rotation_angle)
         #apply rotation
-        rotatedX = tempX*math.cos(angle) - tempY*math.sin(angle)
-        rotatedY = tempX*math.sin(angle) + tempY*math.cos(angle)
-        #translate
-        x = rotatedX + self.centerx
-        y = rotatedY + self.centery
-
-        return Vector2(x,y)
+        rotatedX = x*math.cos(angle) - y*math.sin(angle)
+        rotatedY = x*math.sin(angle) + y*math.cos(angle)
+       
+        return Vector2(rotatedX,rotatedY)
 
     def Outline(self, win):
         for point1, point2 in self.Lines():
