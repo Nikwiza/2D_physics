@@ -26,6 +26,7 @@ class Circle:
         self.vel = [0.,0.]
         self.force = [0.,0.]
         self.surface = circumference**2 * pi
+        self.grounded = False
         collidable.append(self)
 
     #Drawing function : win -> pygame window
@@ -48,6 +49,7 @@ class Rectangle:
         self.force = [0.,0.]
         self.vel = [0.,0.]
         self.surface = height*width
+        self.grounded = False
 
         if width == -1:
             width = height
