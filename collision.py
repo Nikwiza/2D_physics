@@ -1,6 +1,7 @@
 from pygame.locals import *
 from pygame import Vector2
 from objects import *
+from math_util import *
 
 pygame.init()
 
@@ -64,6 +65,19 @@ def RectanglesOverlap(rect1, rect2):
     # If we've made it this far, the rectangles are overlapping
     return True
 
+def intersectCircles(centerA, radiusA, centerB, radiusB):
+    dist = distance(centerA, centerB)
+    radius = radiusA + radiusB
+
+    if(dist >= radius):
+        return False, 0, 0
+
+    normal = normalize(centerB - centerA)
+    depth = radius - dist
+
+    return True, normal, depth
+
+
 def CircleRect(circle, rect):
     testX = circle.x
     testY = circle.y
@@ -77,12 +91,10 @@ def CircleRect(circle, rect):
         testY = rect.y #top edge
     elif(circle.y > rect.y + rect.height):
         testY = rect.y + rect.height #bottom edge
-    
-    distX = circle.x - testX
-    distY = circle.y - testY
-    distance = math.sqrt((distX**2) + (distY**2))
 
-    if(distance <= circle.circumference):
+    dist = distance(circle, Vector2(testX, testY))
+
+    if(dist <= circle.circumference):
         return True
     
     return False
@@ -94,30 +106,45 @@ sqr2 = Rectangle(120,150,1000,0.2,50)
 running = True
 key = ""
 circle = Circle(150, 100, 1, 1, 20)
+circle1 = Circle(200, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
 while running:
     screen.fill((0,0,0))
 
-    sqr1.draw(screen)
-    sqr2.draw(screen)
+    #sqr1.draw(screen)
+    circle.draw(screen)
+    circle1.draw(screen)
+    #sqr2.draw(screen)
 
     vertices1 = sqr1.Vertices()
     vertices2 = sqr2.Vertices()
 
-    if IntersectPolygons(vertices1, vertices2) and RectanglesOverlap(sqr1, sqr2):
-        sqr2.changeColor(col=(0,0,0))
-    else:
-        sqr2.changeColor(col=(0,0,255))
+    #if(CircleRect(circle, sqr1)):
+    #    sqr1.changeColor(col=(0,0,0))
+    #else:
+    #    sqr1.changeColor(col=(0,0,255))
+
+    #if IntersectPolygons(vertices1, vertices2) and RectanglesOverlap(sqr1, sqr2):
+     #   sqr2.changeColor(col=(0,0,0))
+    #else:s
+    #    sqr2.changeColor(col=(0,0,255))
+
+    cond, normal, depth = intersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
+    if cond:
+        circle.Move(-normal * depth / 2)
+        circle1.Move(normal * depth / 2)
+
+
 
     if key == "s":
-        sqr1.y += 1
+        circle.y += 1
     elif key == "w":
-        sqr1.y -= 1
+        circle.y -= 1
     if key == "d":
-        sqr1.x += 1
+        circle.x += 1
     if key == "a":
-        sqr1.x -= 1
+        circle.x -= 1
 
     pygame.display.update()
     Clock.tick(60)

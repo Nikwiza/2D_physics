@@ -33,8 +33,16 @@ class Circle:
 
     #Drawing function : win -> pygame window
 
+    def Move(self, amount):
+        self.x += amount.x
+        self.y += amount.y
+
+    def position(self):
+        return Vector2(self.x, self.y)
+
     def draw(self, win):
         pygame.draw.circle(win,(0,0,255), (self.x, self.y), self.circumference)
+    
 
     
 
@@ -79,19 +87,6 @@ class Rectangle:
         for point1, point2 in self.Lines():
             pygame.draw.line(win,self.col,point1,point2,1)
     
-    def Lines(self):
-        lines = []
-        top_left = self.GetCorner(self.x - self.centerx, self.y - self.centery)
-        top_right = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery)
-        bottom_left = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery)
-        bottom_right = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery)
-
-        lines.append((top_left, top_right))
-        lines.append((top_left, bottom_left))
-        lines.append((bottom_right, top_right))
-        lines.append((bottom_right, bottom_left))
-        return lines
-
     def Vertices(self):
         v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left
         v2 = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery) #top, right
