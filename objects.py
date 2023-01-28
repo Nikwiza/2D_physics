@@ -82,22 +82,16 @@ class Rectangle:
         rotatedY = x*math.sin(angle) + y*math.cos(angle)
        
         return Vector2(rotatedX,rotatedY)
-
-    def Outline(self, win):
-        for point1, point2 in self.Lines():
-            pygame.draw.line(win,self.col,point1,point2,1)
     
     def Vertices(self):
         v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left
         v2 = self.GetCorner(self.x + self.width - self.centerx, self.y - self.centery) #top, right
-        v3 = self.GetCorner(self.x - self.centerx, self.y + self.width - self.centery) #bottom, left
-        v4 = self.GetCorner(self.x + self.width - self.centerx, self.y + self.width - self.centery) #bottom, right
+        v3 = self.GetCorner(self.x - self.centerx, self.y + self.height - self.centery) #bottom, left
+        v4 = self.GetCorner(self.x + self.width - self.centerx, self.y + self.height - self.centery) #bottom, right
+        
         return [v1, v2, v3, v4]
         
-    def draw(self, win, outline=False):
-        if outline:
-            self.Outline()
-        else:
+    def draw(self, win):
             pygame.draw.rect(win,self.col, (self.x, self.y, self.width, self.height))
     
     def Move(self, x=None, y=None):
