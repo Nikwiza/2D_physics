@@ -65,7 +65,7 @@ def RectanglesOverlap(rect1, rect2):
     # If we've made it this far, the rectangles are overlapping
     return True
 
-def intersectCircles(centerA, radiusA, centerB, radiusB):
+def IntersectCircles(centerA, radiusA, centerB, radiusB):
     dist = distance(centerA, centerB)
     radius = radiusA + radiusB
 
@@ -77,28 +77,67 @@ def intersectCircles(centerA, radiusA, centerB, radiusB):
 
     return True, normal, depth
 
+def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
 
-def CircleRect(circle, rect):
-    testX = circle.x
-    testY = circle.y
+    for i in range(len(vertices)):
+        v1 = vertices[i] 
+        v2 = vertices[(i+1)%len(vertices)]
+        #edge of the polygon
+        edge = v2 - v1
+        #axis that we will project our vertices on
+        axis = Vector2(-edge.y, edge.x)
 
-    if(circle.x < rect.x):
-        testX = rect.x #left edge
-    elif(circle.x > (rect.x + rect.width)):
-        testX = rect.x + rect.width #right edge
+        [minA, maxA] = ProjectVertices(vertices, axis)
+        [minB, maxB] = ProjectCircle(circleCenter, circleRadius, axis)
+
+        if(minA >= maxB or minB >= maxA):
+            return False
     
-    if(circle.y < rect.y):
-        testY = rect.y #top edge
-    elif(circle.y > rect.y + rect.height):
-        testY = rect.y + rect.height #bottom edge
+    cpIndex = FindClosestPointOnPolygon(circleCenter, vertices)
+    cp = vertices[cpIndex]
 
-    dist = distance(circle, Vector2(testX, testY))
+    axis = cp - circleCenter
 
-    if(dist <= circle.circumference):
-        return True
+    [minA, maxA] = ProjectVertices(vertices, axis)
+    [minB, maxB] = ProjectCircle(circleCenter, circleRadius, axis)
+
+    if(minA >= maxB or minB >= maxA):
+            return False
     
-    return False
+    return True
+
+
+def FindClosestPointOnPolygon(circleCenter, vertices):
+    result = -1
+    minDistance = distance(vertices[0], circleCenter)
+
+    for i in range(len(vertices)):
+        v = vertices[i] 
+        dist = distance(v, circleCenter)
+
+        if(dist < minDistance):
+            minDistance = dist
+            result = i
     
+    return result
+
+
+def ProjectCircle(center, radius, axis):
+    direction = normalize(axis)
+    directionAndRadius = direction * radius
+
+    p1 = center + directionAndRadius
+    p2 = center - directionAndRadius
+
+    min = Vector2.dot(p1, axis) #project first point onto an axis
+    max = Vector2.dot(p2, axis) #project second point onto an axis
+
+    if(min > max):
+        #swap values
+        min, max = max, min
+
+    return min, max
+
 sqr1 = Rectangle(250,150,1000,0.2,50)
 sqr2 = Rectangle(120,150,1000,0.2,50)
 
@@ -113,28 +152,31 @@ while running:
     screen.fill((0,0,0))
 
     #sqr1.draw(screen)
+    #circle.draw(screen)
+    sqr1.draw(screen)
     circle.draw(screen)
-    circle1.draw(screen)
     #sqr2.draw(screen)
 
     vertices1 = sqr1.Vertices()
     vertices2 = sqr2.Vertices()
 
-    #if(CircleRect(circle, sqr1)):
-    #    sqr1.changeColor(col=(0,0,0))
-    #else:
-    #    sqr1.changeColor(col=(0,0,255))
-
+    #intersect of two polygons
     #if IntersectPolygons(vertices1, vertices2) and RectanglesOverlap(sqr1, sqr2):
      #   sqr2.changeColor(col=(0,0,0))
     #else:s
     #    sqr2.changeColor(col=(0,0,255))
 
-    cond, normal, depth = intersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
-    if cond:
-        circle.Move(-normal * depth / 2)
-        circle1.Move(normal * depth / 2)
-
+    #Collision of two circles
+    #cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
+    #if cond:
+     #   circle.Move(-normal * depth / 2)
+     #   circle1.Move(normal * depth / 2)
+    
+    #Collision of a circle and polygon
+    if(IntersectCirclePolygon(circle.position(), circle.circumference, vertices1)):
+        sqr1.changeColor(col=(0,0,0))
+    else:
+        sqr1.changeColor(col=(0,0,255))
 
 
     if key == "s":
