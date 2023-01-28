@@ -145,36 +145,35 @@ sqr2 = Rectangle(120,150,1000,0.2,50)
 
 running = True
 key = ""
-#circle = Circle(150, 100, 1, 1, 20)
-#circle1 = Circle(200, 100, 1, 1, 20)
+circle = Circle(150, 100, 1, 1, 20)
+circle1 = Circle(200, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
 while running:
     screen.fill((0,0,0))
 
     sqr1.draw(screen)
-    #circle.draw(screen)
     sqr2.draw(screen)
+
+    circle.draw(screen)
+    circle1.draw(screen)
 
     vertices1 = sqr1.Vertices()
     vertices2 = sqr2.Vertices()
 
-    print(vertices1)
-    print(vertices2)
-    print(sqr1.x, sqr1.y)
-    print(sqr2.x, sqr2.y)
+
     #IntersectPolygons(vertices1, vertices2)
     #intersect of two polygons
-    if IntersectPolygons(vertices1, vertices2):
-        sqr2.changeColor(col=(0,0,0))
-    else:
-        sqr2.changeColor(col=(0,0,255))
+    #if IntersectPolygons(vertices1, vertices2):
+    #    sqr2.changeColor(col=(0,0,0))
+   # else:
+    #    sqr2.changeColor(col=(0,0,255))
 
     #Collision of two circles
-    #cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
-    #if cond:
-     #   circle.Move(-normal * depth / 2)
-     #   circle1.Move(normal * depth / 2)
+    cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
+    if cond:
+        circle.Move(-normal * depth / 2)
+        circle1.Move(normal * depth / 2)
 
     #and CircleRectOverlap(circle.x, circle.y, circle.circumference, sqr1.x, sqr1.y, sqr1.width, sqr1.height)
     #Collision of a circle and polygon
@@ -184,7 +183,6 @@ while running:
    # else:
     #    sqr1.changeColor(col=(0,0,255))
 
-    """
     if key == "s":
         circle.y += 1
     elif key == "w":
@@ -193,6 +191,7 @@ while running:
         circle.x += 1
     if key == "a":
         circle.x -= 1
+
     """
     if key == "s":
         sqr1.y += 1
@@ -202,7 +201,7 @@ while running:
         sqr1.x += 1
     if key == "a":
         sqr1.x -= 1
-
+    """
     pygame.display.update()
     Clock.tick(60)
 
