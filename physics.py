@@ -46,13 +46,7 @@ def update(win):
         Fd = -(np.array([abs(o.vel[0]),abs(o.vel[1])])*o.friction*o.surface*surrounding_denc)*normalize(o.vel)
         F = Fg+Fa+Fd
 
- 
-        print("velocity")
-        print(o.vel)
-        print("Drag")
-        print(Fd)
-        print("Forces")
-        print(F)
+
 
         # Fg -> gravity
         # Fa -> Applied forces

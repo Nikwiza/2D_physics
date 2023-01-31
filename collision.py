@@ -14,11 +14,19 @@ def IntersectPolygons(verticesA, verticesB):
         #edge of the polygon
         edge = v2 - v1
         #axis that we will project our vertices on
-        axis = Vector2(-edge.y, edge.x)
+        axis = Vector2(-edge.x, edge.y)
         axis = normalize(axis)
 
         [minA, maxA] = ProjectVertices(verticesA, axis)
         [minB, maxB] = ProjectVertices(verticesB, axis)
+
+        #testing 
+        pygame.draw.line(screen, "red", [minA, v1.x+10], [maxA, v1.x+10])
+        pygame.draw.line(screen, "red", [minB,v1.x+10], [maxB, v1.x+10])
+
+        pygame.draw.line(screen, "red", [v1.y+40, minA], [v1.y+40, maxA])
+        pygame.draw.line(screen, "red", [v1.y+40, minB], [v1.y+40, maxB])
+        
 
         if(minA >= maxB or minB >= maxA):
             return False
@@ -155,25 +163,25 @@ while running:
     sqr1.draw(screen)
     sqr2.draw(screen)
 
-    circle.draw(screen)
-    circle1.draw(screen)
+    # circle.draw(screen)
+    # circle1.draw(screen)
 
     vertices1 = sqr1.Vertices()
     vertices2 = sqr2.Vertices()
 
 
-    #IntersectPolygons(vertices1, vertices2)
-    #intersect of two polygons
-    #if IntersectPolygons(vertices1, vertices2):
-    #    sqr2.changeColor(col=(0,0,0))
-   # else:
-    #    sqr2.changeColor(col=(0,0,255))
+    IntersectPolygons(vertices1, vertices2)
+    # intersect of two polygons
+    if IntersectPolygons(vertices1, vertices2):
+       sqr2.changeColor(col=(0,0,0))
+    else:
+       sqr2.changeColor(col=(0,0,255))
 
-    #Collision of two circles
-    cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
-    if cond:
-        circle.Move(-normal * depth / 2)
-        circle1.Move(normal * depth / 2)
+    # Collision of two circles
+    # cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
+    # if cond:
+    #     circle.Move(-normal * depth / 2)
+    #     circle1.Move(normal * depth / 2)
 
     #and CircleRectOverlap(circle.x, circle.y, circle.circumference, sqr1.x, sqr1.y, sqr1.width, sqr1.height)
     #Collision of a circle and polygon
@@ -183,16 +191,16 @@ while running:
    # else:
     #    sqr1.changeColor(col=(0,0,255))
 
-    if key == "s":
-        circle.y += 1
-    elif key == "w":
-        circle.y -= 1
-    if key == "d":
-        circle.x += 1
-    if key == "a":
-        circle.x -= 1
+    # if key == "s":
+    #     circle.y += 1
+    # elif key == "w":
+    #     circle.y -= 1
+    # if key == "d":
+    #     circle.x += 1
+    # if key == "a":
+    #     circle.x -= 1
 
-    """
+
     if key == "s":
         sqr1.y += 1
     elif key == "w":
@@ -201,7 +209,7 @@ while running:
         sqr1.x += 1
     if key == "a":
         sqr1.x -= 1
-    """
+
     pygame.display.update()
     Clock.tick(60)
 
