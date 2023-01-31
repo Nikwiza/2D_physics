@@ -2,7 +2,8 @@ import pygame
 from pygame.locals import *
 from pygame import Vector2
 import math
-from objects import Rectangle
+from objects import *
+import sat_test
 
 pygame.init()
 
@@ -29,66 +30,12 @@ def LineIntersect(line1, line2):
     t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4))/den
     u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2))/den
 
-    if t >= 0 and t <= 1 and u >= 0 and u <= 1:
+    if t > 0 and t < 1 and u > 0 and u < 1:
         point = Vector2()
         point.x = x1 + t * (x2 - x1)
         point.y = y1 + t * (y2 - y1)
         return point
     return
-
-class Square:
-    def __init__(self, x, y, w):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.centerx = self.x + w//2
-        self.centery = self.y + w//2
-        self.col = (255, 0, 0)
-        self.rotation_angle = 0
-
-    def Draw(self, outline = False):
-        if outline:
-            self.Outline()
-        else:
-            pygame.draw.rect(screen,self.col,(self.x,self.y,self.w,self.w))
-
-    def GetCorner(self, tempX, tempY):
-        angle = math.radians(self.rotation_angle)
-        #apply rotation
-        rotatedX = tempX*math.cos(angle) - tempY*math.sin(angle)
-        rotatedY = tempX*math.sin(angle) + tempY*math.cos(angle)
-        #translate
-        x = rotatedX + self.centerx
-        y = rotatedY + self.centery
-
-        return Vector2(x,y)
-    
-    def Outline(self):
-        for point1, point2 in self.Lines():
-            pygame.draw.line(screen,self.col,point1,point2,1)
-    
-    def Lines(self):
-        lines = []
-        top_left = self.GetCorner(self.x - self.centerx, self.y - self.centery)
-        top_right = self.GetCorner(self.x + self.w - self.centerx, self.y - self.centery)
-        bottom_left = self.GetCorner(self.x - self.centerx, self.y + self.w - self.centery)
-        bottom_right = self.GetCorner(self.x + self.w - self.centerx, self.y + self.w - self.centery)
-
-        lines.append((top_left, top_right))
-        lines.append((top_left, bottom_left))
-        lines.append((bottom_right, top_right))
-        lines.append((bottom_right, bottom_left))
-        return lines
-
-    def Move(self, x=None, y=None):
-        if x:
-            self.x += x
-            self.centerx += x
-        if y:
-            self.y += y
-            self.centery += y
-
-#Test example
 
 def DrawLineInBetween(sqr1, sqr2):
     #draw a line between the 2 squares, get gradient
@@ -103,8 +50,8 @@ def DrawLineInBetween(sqr1, sqr2):
         gradient = ((left.y - right.y)/abs(sqr1.x - sqr2.x))
 
     #get the middle point between the centers of the squares
-    middle = (max(sqr1.x + sqr1.w//2, sqr2.x + sqr2.w//2) - abs(sqr1.x - sqr2.x)//2,
-              max(sqr1.y + sqr1.w//2, sqr2.y + sqr2.w//2) - abs(sqr1.y - sqr2.y)//2)
+    middle = (max(sqr1.x + sqr1.width//2, sqr2.x + sqr2.width//2) - abs(sqr1.x - sqr2.x)//2,
+              max(sqr1.y + sqr1.width//2, sqr2.y + sqr2.width//2) - abs(sqr1.y - sqr2.y)//2)
     #to avoid divide by 0
     if gradient == 0:
         point1 = Vector2(middle[0], middle[1] + 100)
@@ -115,23 +62,66 @@ def DrawLineInBetween(sqr1, sqr2):
     else:
         #get normal of line
         gradient = -1/gradient
-        #print("normal:",gradient)
 
         point1 = Vector2(middle[0] + 100, middle[1] + int(-100 * gradient))
         point2 = Vector2(middle[0] - 100, middle[1] + int(100 * gradient))
-        #print(point1)
-        #print(point2)
-        #print(middle)
 
     pygame.draw.line(screen,(0,255,0),point1,point2,1)
 
     line = (point1, point2)
     return line
 
+def CheckSquareIntersection(sqr1, sqr2, line):
+    # get the normal of the line
+    normal = line[1] - line[0]
+    normal.rotate_ip(90)
+    normal.normalize_ip()
 
-sqr1 = Rectangle(250,100,3,4,50)
-sqr2 = Rectangle(200,100,3,4,50)
+    # project the vertices of the square onto the normal
+    proj1 = [Vector2.dot(sqr1.v1, normal), Vector2.dot(sqr1.v2, normal), Vector2.dot(sqr1.v3, normal), Vector2.dot(sqr1.v4, normal)]
+    proj2 = [Vector2.dot(sqr2.v1, normal), Vector2.dot(sqr2.v2, normal), Vector2.dot(sqr2.v3, normal), Vector2.dot(sqr2.v4, normal)]
 
+    # get the min and max of the projections
+    min_proj1 = min(proj1)
+    max_proj1 = max(proj1)
+    min_proj2 = min(proj2)
+    max_proj2 = max(proj2)
+
+    # check if the projections overlap
+    if (min_proj1 <= max_proj2) and (min_proj2 <= max_proj1):
+        return True
+    
+    return False
+
+def CircleRect(circle, rect):
+    testX = circle.x
+    testY = circle.y
+
+    if(circle.x < rect.x):
+        testX = rect.x #left edge
+    elif(circle.x > (rect.x + rect.width)):
+        testX = rect.x + rect.width #right edge
+    
+    if(circle.y < rect.y):
+        testY = rect.y #top edge
+    elif(circle.y > rect.y + rect.height):
+        testY = rect.y + rect.height #bottom edge
+    
+    distX = circle.x - testX
+    distY = circle.y - testY
+    distance = math.sqrt((distX**2) + (distY**2))
+
+    if(distance <= circle.circumference):
+        return True
+    
+    return False
+
+
+#Test example
+
+sqr1 = Rectangle(250,150,1000,0.2,50)
+sqr2 = Rectangle(180,150,1000,0.2,50)
+circle = Circle(150, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
 running = True
@@ -142,12 +132,26 @@ while running:
 
     sqr1.draw(screen)
     sqr2.draw(screen)
-    #line = DrawLineInBetween(sqr1, sqr2)
-
+    #circle.draw(screen)
+    line = DrawLineInBetween(sqr1, sqr2)
+    
     #for sqr_line in sqr1.Lines():
-        #pt = LineIntersect(line,sqr_line)
-        #if pt:
-           # pygame.draw.circle(screen,(0,255,255),(int(pt.x),int(pt.y)),5)
+     #  pt1 = LineIntersect(line,sqr_line)
+       
+    #for sqr_line in sqr2.Lines():
+      # pt2 = LineIntersect(line,sqr_line)
+
+    #if pt1 and pt2:
+    #    pygame.draw.circle(screen,(0,255,255),(int(pt1.x),int(pt1.y)),5) 
+    if(CheckSquareIntersection(sqr1, sqr2, line)):
+        sqr2.changeColor((0,0,0))
+    else:
+        sqr2.changeColor((0,0,255))        
+    
+    #if(CircleRect(circle, sqr2)):
+    #    sqr2.changeColor(col=(255,0,0))
+   # else:
+    #    sqr2.changeColor(col=(0,0,255))
 
     if key == "s":
         sqr1.y += 1
