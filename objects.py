@@ -97,13 +97,9 @@ class Rectangle:
     def draw(self, win):
             pygame.draw.rect(win,self.col, (self.x, self.y, self.width, self.height))
     
-    def Move(self, x=None, y=None):
-        if x:
-            self.x += x
-            self.centerx += x
-        if y:
-            self.y += y
-            self.centery += y
+    def Move(self, amount):
+            self.x += amount.x
+            self.y += amount.y
     
     def changeColor(self, col):
         self.col = col

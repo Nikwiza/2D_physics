@@ -8,32 +8,12 @@ pygame.init()
 screen = pygame.display.set_mode((500,500))
 
 def IntersectPolygons(verticesA, verticesB):
+    depth = math.inf
+    normal = Vector2(0,0)
+
     for i in range(len(verticesA)):
         v1 = verticesA[i] 
         v2 = verticesA[(i+1)%len(verticesA)]
-        #edge of the polygon
-        edge = v2 - v1
-        #axis that we will project our vertices on
-        axis = Vector2(-edge.x, edge.y)
-        axis = normalize(axis)
-
-        [minA, maxA] = ProjectVertices(verticesA, axis)
-        [minB, maxB] = ProjectVertices(verticesB, axis)
-
-        #testing 
-        pygame.draw.line(screen, "red", [minA, v1.x+10], [maxA, v1.x+10])
-        pygame.draw.line(screen, "red", [minB,v1.x+10], [maxB, v1.x+10])
-
-        pygame.draw.line(screen, "red", [v1.y+40, minA], [v1.y+40, maxA])
-        pygame.draw.line(screen, "red", [v1.y+40, minB], [v1.y+40, maxB])
-        
-
-        if(minA >= maxB or minB >= maxA):
-            return False
-    
-    for i in range(len(verticesB)):
-        v1 = verticesB[i]
-        v2 = verticesB[(i+1)%len(verticesB)]
         #edge of the polygon
         edge = v2 - v1
         #axis that we will project our vertices on
@@ -44,9 +24,45 @@ def IntersectPolygons(verticesA, verticesB):
         [minB, maxB] = ProjectVertices(verticesB, axis)
 
         if(minA >= maxB or minB >= maxA):
-            return False
+            return False, 0, 0
+        
+        axisDepth = min(maxB - minA, maxA - minB)
+
+        if(axisDepth < depth):
+            depth = axisDepth
+            normal = axis
     
-    return True
+    for i in range(len(verticesB)):
+        v1 = verticesB[i]
+        v2 = verticesB[(i+1)%len(verticesB)]
+        #edge of the polygon
+        edge = v2 - v1
+        #axis that we will project our vertices on
+        axis = Vector2(-edge.y, edge.x)
+        axis = normalize(axis)
+        #print(axis)
+
+        [minA, maxA] = ProjectVertices(verticesA, axis)
+        [minB, maxB] = ProjectVertices(verticesB, axis)
+
+        if(minA >= maxB or minB >= maxA):
+            return False, 0, 0
+
+        axisDepth = min(maxB - minA, maxA - minB)
+
+        if(axisDepth < depth):
+            depth = axisDepth
+            normal = axis
+
+    centerA = findArithmeticMean(verticesA)
+    centerB = findArithmeticMean(verticesB)
+
+    direction = centerB - centerA
+
+    if(Vector2.dot(direction, normal) < 0):
+        normal = -normal
+
+    return True, normal, depth
         
 def ProjectVertices(vertices, axis):
     min = Vector2.dot(vertices[0], axis)
@@ -64,16 +80,6 @@ def ProjectVertices(vertices, axis):
     
     return [min, max]
 
-def RectanglesOverlap(rect1, rect2):
-    # Check for overlap in the x dimension
-    if rect1.x > rect2.x + rect2.width or rect2.x > rect1.x + rect1.width:
-        return False
-    # Check for overlap in the y dimension
-    if rect1.y > rect2.y + rect2.height or rect2.y > rect1.y + rect1.height:
-        return False
-    # If we've made it this far, the rectangles are overlapping
-    return True
-
 def IntersectCircles(centerA, radiusA, centerB, radiusB):
     dist = distance(centerA, centerB)
     radius = radiusA + radiusB
@@ -87,6 +93,8 @@ def IntersectCircles(centerA, radiusA, centerB, radiusB):
     return True, normal, depth
 
 def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
+    depth = math.inf
+    normal = Vector2(0,0)
 
     for i in range(len(vertices)):
         v1 = vertices[i] 
@@ -95,25 +103,46 @@ def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
         edge = v2 - v1
         #axis that we will project our vertices on
         axis = Vector2(-edge.y, edge.x)
+        axis = normalize(axis)
 
         [minA, maxA] = ProjectVertices(vertices, axis)
         [minB, maxB] = ProjectCircle(circleCenter, circleRadius, axis)
 
         if(minA >= maxB or minB >= maxA):
-            return False
+            return False, 0, 0
+        
+        axisDepth = min(maxB - minA, maxA - minB)
+
+        if(axisDepth < depth):
+            depth = axisDepth
+            normal = axis
     
     cpIndex = FindClosestPointOnPolygon(circleCenter, vertices)
     cp = vertices[cpIndex]
 
     axis = cp - circleCenter
+    axis = normalize(axis)
 
     [minA, maxA] = ProjectVertices(vertices, axis)
     [minB, maxB] = ProjectCircle(circleCenter, circleRadius, axis)
 
     if(minA >= maxB or minB >= maxA):
-            return False
+            return False, 0, 0
     
-    return True
+    axisDepth = min(maxB - minA, maxA - minB)
+
+    if(axisDepth < depth):
+        depth = axisDepth
+        normal = axis
+    
+    polygonCenter = findArithmeticMean(vertices) #find the center of polygon
+    direction = polygonCenter - circleCenter
+
+    if(Vector2.dot(direction, normal) < 0):
+        normal = -normal
+    
+
+    return True, normal, depth
 
 def FindClosestPointOnPolygon(circleCenter, vertices):
     result = -1
@@ -128,7 +157,6 @@ def FindClosestPointOnPolygon(circleCenter, vertices):
             result = i
     
     return result
-
 
 def ProjectCircle(center, radius, axis):
     direction = normalize(axis)
@@ -158,24 +186,26 @@ circle1 = Circle(200, 100, 1, 1, 20)
 Clock = pygame.time.Clock()
 
 while running:
-    screen.fill((0,0,0))
+    screen.fill((255,255,255))
 
     sqr1.draw(screen)
-    sqr2.draw(screen)
+    #sqr2.draw(screen)
 
-    # circle.draw(screen)
-    # circle1.draw(screen)
+    circle.draw(screen)
+    #circle1.draw(screen)
+
+    
 
     vertices1 = sqr1.Vertices()
-    vertices2 = sqr2.Vertices()
+    #vertices2 = sqr2.Vertices()
 
 
-    IntersectPolygons(vertices1, vertices2)
-    # intersect of two polygons
-    if IntersectPolygons(vertices1, vertices2):
-       sqr2.changeColor(col=(0,0,0))
-    else:
-       sqr2.changeColor(col=(0,0,255))
+    # IntersectPolygons(vertices1, vertices2)
+    # # intersect of two polygons
+    # if IntersectPolygons(vertices1, vertices2):
+    #    sqr2.changeColor(col=(0,0,0))
+    # else:
+    #    sqr2.changeColor(col=(0,0,255))
 
     # Collision of two circles
     # cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
@@ -183,32 +213,31 @@ while running:
     #     circle.Move(-normal * depth / 2)
     #     circle1.Move(normal * depth / 2)
 
-    #and CircleRectOverlap(circle.x, circle.y, circle.circumference, sqr1.x, sqr1.y, sqr1.width, sqr1.height)
     #Collision of a circle and polygon
-
-    #if(IntersectCirclePolygon(circle.position(), circle.circumference, vertices1)):
-    #    sqr1.changeColor(col=(0,0,0))
-   # else:
-    #    sqr1.changeColor(col=(0,0,255))
-
-    # if key == "s":
-    #     circle.y += 1
-    # elif key == "w":
-    #     circle.y -= 1
-    # if key == "d":
-    #     circle.x += 1
-    # if key == "a":
-    #     circle.x -= 1
-
+    cond, normal, depth = IntersectCirclePolygon(circle.position(), circle.circumference, vertices1)
+    if(cond):
+        sqr1.changeColor(col=(0,0,0))
+    else:
+        sqr1.changeColor(col=(0,0,255))
 
     if key == "s":
-        sqr1.y += 1
+        circle.y += 1
     elif key == "w":
-        sqr1.y -= 1
+        circle.y -= 1
     if key == "d":
-        sqr1.x += 1
+        circle.x += 1
     if key == "a":
-        sqr1.x -= 1
+        circle.x -= 1
+
+
+    # if key == "s":
+    #     sqr1.y += 1
+    # elif key == "w":
+    #     sqr1.y -= 1
+    # if key == "d":
+    #     sqr1.x += 1
+    # if key == "a":
+    #     sqr1.x -= 1
 
     pygame.display.update()
     Clock.tick(60)
