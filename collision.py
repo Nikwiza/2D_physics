@@ -17,7 +17,7 @@ def IntersectPolygons(verticesA, verticesB):
         #edge of the polygon
         edge = v2 - v1
         #axis that we will project our vertices on
-        axis = Vector2(-edge.y, edge.x)
+        axis = Vector2(-edge.x, edge.y)
         axis = normalize(axis)
 
         [minA, maxA] = ProjectVertices(verticesA, axis)
@@ -45,6 +45,10 @@ def IntersectPolygons(verticesA, verticesB):
         [minA, maxA] = ProjectVertices(verticesA, axis)
         [minB, maxB] = ProjectVertices(verticesB, axis)
 
+        screen.fill("red", (Vector2(minA,axis.y), (3, 3)))
+        screen.fill("red", (Vector2(maxA,axis.y), (3, 3)))
+        screen.fill("green", (Vector2(minB,axis.y), (3, 3)))
+        screen.fill("green", (Vector2(maxB,axis.y), (3, 3)))
         if(minA >= maxB or minB >= maxA):
             return False, 0, 0
 
@@ -197,12 +201,11 @@ while running:
     
 
     vertices1 = sqr1.Vertices()
-    #vertices2 = sqr2.Vertices()
+    vertices2 = sqr2.Vertices()
 
 
-    # IntersectPolygons(vertices1, vertices2)
-    # # intersect of two polygons
-    # if IntersectPolygons(vertices1, vertices2):
+    # intersect of two polygons
+    # if IntersectPolygons(vertices1, vertices2)[0]:
     #    sqr2.changeColor(col=(0,0,0))
     # else:
     #    sqr2.changeColor(col=(0,0,255))
