@@ -32,8 +32,8 @@ def force(o, force):
     o.force += force
     return
 
-def update(win): 
-    for o in objects.collidable:
+def update(win, movable): 
+    for o in movable:
         
 
         # F are all the forces acting on the body

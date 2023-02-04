@@ -10,14 +10,13 @@ screen = pygame.display.set_mode((500,500))
 def IntersectPolygons(verticesA, verticesB):
     depth = math.inf
     normal = Vector2(0,0)
-
     for i in range(len(verticesA)):
         v1 = verticesA[i] 
         v2 = verticesA[(i+1)%len(verticesA)]
         #edge of the polygon
         edge = v2 - v1
         #axis that we will project our vertices on
-        axis = Vector2(-edge.x, edge.y)
+        axis = Vector2(-edge.y, edge.x)
         axis = normalize(axis)
 
         [minA, maxA] = ProjectVertices(verticesA, axis)
@@ -38,17 +37,16 @@ def IntersectPolygons(verticesA, verticesB):
         #edge of the polygon
         edge = v2 - v1
         #axis that we will project our vertices on
-        axis = Vector2(-edge.y, edge.x)
+        axis = Vector2(-edge.x, edge.y)
         axis = normalize(axis)
-        #print(axis)
 
         [minA, maxA] = ProjectVertices(verticesA, axis)
         [minB, maxB] = ProjectVertices(verticesB, axis)
 
-        screen.fill("red", (Vector2(minA,axis.y), (3, 3)))
-        screen.fill("red", (Vector2(maxA,axis.y), (3, 3)))
-        screen.fill("green", (Vector2(minB,axis.y), (3, 3)))
-        screen.fill("green", (Vector2(maxB,axis.y), (3, 3)))
+        # screen.fill("red", (Vector2(minA,axis.y), (3, 3)))
+        # screen.fill("red", (Vector2(maxA,axis.y), (3, 3)))
+        # screen.fill("green", (Vector2(minB,axis.y), (3, 3)))
+        # screen.fill("green", (Vector2(maxB,axis.y), (3, 3)))
         if(minA >= maxB or minB >= maxA):
             return False, 0, 0
 
@@ -69,12 +67,12 @@ def IntersectPolygons(verticesA, verticesB):
     return True, normal, depth
         
 def ProjectVertices(vertices, axis):
-    min = Vector2.dot(vertices[0], axis)
-    max = Vector2.dot(vertices[0], axis) 
+    min = math.inf
+    max = -math.inf 
 
     for v in vertices:
         #projection of a vertice onto an axis
-        proj = Vector2.dot(v, axis) 
+        proj = Vector2.dot(v, axis)
 
         if proj < min:
             min = proj
@@ -130,6 +128,7 @@ def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
     [minA, maxA] = ProjectVertices(vertices, axis)
     [minB, maxB] = ProjectCircle(circleCenter, circleRadius, axis)
 
+
     if(minA >= maxB or minB >= maxA):
             return False, 0, 0
     
@@ -150,7 +149,7 @@ def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
 
 def FindClosestPointOnPolygon(circleCenter, vertices):
     result = -1
-    minDistance = distance(vertices[0], circleCenter)
+    minDistance = math.inf
 
     for i in range(len(vertices)):
         v = vertices[i] 
@@ -159,7 +158,7 @@ def FindClosestPointOnPolygon(circleCenter, vertices):
         if(dist < minDistance):
             minDistance = dist
             result = i
-    
+
     return result
 
 def ProjectCircle(center, radius, axis):
@@ -204,7 +203,7 @@ while running:
     vertices2 = sqr2.Vertices()
 
 
-    # intersect of two polygons
+    #intersect of two polygons
     # if IntersectPolygons(vertices1, vertices2)[0]:
     #    sqr2.changeColor(col=(0,0,0))
     # else:
