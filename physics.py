@@ -1,5 +1,4 @@
 from euler_meth import eulerN
-import objects
 import numpy as np
 import pygame
 

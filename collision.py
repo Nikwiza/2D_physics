@@ -5,7 +5,10 @@ from math_util import *
 
 pygame.init()
 
-screen = pygame.display.set_mode((500,500))
+screen_height = 500
+screen_width = 500
+
+screen = pygame.display.set_mode((screen_height,screen_width))
 
 def IntersectPolygons(verticesA, verticesB):
     depth = math.inf
@@ -178,82 +181,6 @@ def ProjectCircle(center, radius, axis):
     return min, max
 
 
-sqr1 = Rectangle(250,150,1000,0.2,50)
-sqr2 = Rectangle(120,150,1000,0.2,50)
-
-
-running = True
-key = ""
-circle = Circle(150, 100, 1, 1, 20)
-circle1 = Circle(200, 100, 1, 1, 20)
-Clock = pygame.time.Clock()
-
-while running:
-    screen.fill((255,255,255))
-
-    sqr1.draw(screen)
-    #sqr2.draw(screen)
-
-    circle.draw(screen)
-    #circle1.draw(screen)
-
-    
-
-    vertices1 = sqr1.Vertices()
-    vertices2 = sqr2.Vertices()
-
-
-    #intersect of two polygons
-    # if IntersectPolygons(vertices1, vertices2)[0]:
-    #    sqr2.changeColor(col=(0,0,0))
-    # else:
-    #    sqr2.changeColor(col=(0,0,255))
-
-    # Collision of two circles
-    # cond, normal, depth = IntersectCircles(circle.position(), circle.circumference, circle1.position(), circle1.circumference)
-    # if cond:
-    #     circle.Move(-normal * depth / 2)
-    #     circle1.Move(normal * depth / 2)
-
-    #Collision of a circle and polygon
-    cond, normal, depth = IntersectCirclePolygon(circle.position(), circle.circumference, vertices1)
-    if(cond):
-        sqr1.changeColor(col=(0,0,0))
-    else:
-        sqr1.changeColor(col=(0,0,255))
-
-    if key == "s":
-        circle.y += 1
-    elif key == "w":
-        circle.y -= 1
-    if key == "d":
-        circle.x += 1
-    if key == "a":
-        circle.x -= 1
-
-
-    # if key == "s":
-    #     sqr1.y += 1
-    # elif key == "w":
-    #     sqr1.y -= 1
-    # if key == "d":
-    #     sqr1.x += 1
-    # if key == "a":
-    #     sqr1.x -= 1
-
-    pygame.display.update()
-    Clock.tick(60)
-
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            pygame.quit()
-            running = False
-        if e.type == MOUSEBUTTONDOWN:
-            print(e.pos)
-        if e.type == KEYDOWN:
-            key = e.unicode
-        if e.type == KEYUP:
-            key = ""
 
 
 

@@ -12,10 +12,6 @@ from pygame.locals import *
 #################################
 
 
-# Instances that are colidable
-
-collidable = []
-
 ########  CIRCLE  #########
 
 class Circle:
@@ -30,7 +26,6 @@ class Circle:
         self.force = [0.,0.]
         self.surface = circumference**2 * pi
         self.grounded = False
-        collidable.append(self)
 
     #Drawing function : win -> pygame window
 
@@ -73,7 +68,6 @@ class Rectangle:
         self.col = (0, 0, 255)
         self.rotation_angle = 0
 
-        collidable.append(self)
 
     def GetCorner(self, tempX, tempY):
         #translate
@@ -83,7 +77,7 @@ class Rectangle:
         #apply rotation
         rotatedX = x*math.cos(angle) - y*math.sin(angle)
         rotatedY = x*math.sin(angle) + y*math.cos(angle)
-       
+        
         return Vector2(rotatedX,rotatedY)
     
     def Vertices(self):

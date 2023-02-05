@@ -1,65 +1,90 @@
-import collision
-import physics
+from collision import *
+from physics import *
 import pygame
 from objects import *
 
+class Player(object):
+    def __init__(self):
+        self.rect = Rectangle(40,40,50,0.2,16)
+
+class Wall(object):
+    def __init__(self, pos):
+        walls.append(self)
+        self.rect = Rectangle(pos[0], pos[1], 0, 0, 16, 16)
+
 pygame.init()
-win = pygame.display.set_mode((800, 800))
-pygame.display.set_caption("Physics test")
 
-##############  TEST RUN  ###################
+screen_height = 512
+screen_width = 256
 
-x = 200 
-y = 200
-
-width = 20
-height = 20
-
-test = Rectangle(x, y, 1000, 0.2, width, height)
-platform = Rectangle(x, y, 0, 0, 20, 800)
-#test_c = Circle(x+30, y+30, 100, 0.2, 30)
-
-movable = []
-movable.append(test)
-
-vel = 10
-run = True
-
-while run:
-    pygame.time.delay(10)
-    
-    platform.draw(win)
-
-    cond, normal, depth = collision.IntersectPolygons(test.Vertices(), platform.Vertices())
-
-    if(cond):
-        test.vel = [0, 0]
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-    
-    keys = pygame.key.get_pressed()
-
-    if keys[pygame.K_LEFT] and test.x>0:
-        test.vel[0]-=vel
-    
-    if keys[pygame.K_RIGHT] and test.x<800-width:
-        test.vel[0]+=vel
-    
-    if keys[pygame.K_DOWN] and test.y<800-height:
-        test.vel[1]+=vel
-
-    if keys[pygame.K_UP] and test.y>0:
-        test.vel[1]-=vel
-
-    if test.y > 800:
-        test.grounded = True
+screen = pygame.display.set_mode((screen_height,screen_width))
 
 
-    win.fill((0,0,0))
-    physics.update(win, movable)
+walls = []
+player = Player()
+
+level = ["WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "W                              W",
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+
+x = y = 0
+
+for row in level:
+    for col in row:
+        if col == "W":
+            Wall((x, y))
+        x += 16
+    y += 16
+    x = 0
+
+running = True
+key = ""
+
+Clock = pygame.time.Clock()
+
+while running:
     pygame.display.update()
+    Clock.tick(60)
 
-pygame.quit()
+    
+    key = pygame.key.get_pressed()
+    if key[pygame.K_LEFT]:
+        player.rect.x += -2
+    if key[pygame.K_RIGHT]:
+        player.rect.x += 2
+    if key[pygame.K_UP]:
+        player.rect.y += -2
+    if key[pygame.K_DOWN]:
+        player.rect.y += 2
+
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            running = False
+        if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+            running = False
+
+    for wall in walls:
+        cond, normal, depth = IntersectPolygons(wall.rect.Vertices(), player.rect.Vertices())
+        if(cond):
+            player.rect.Move(normal * depth / 2)
+
+    screen.fill((255,255,255))
+    player.rect.draw(screen)
+    for wall in walls:
+        wall.rect.changeColor((255,255,255))
+        wall.rect.draw(screen)
+    
 
