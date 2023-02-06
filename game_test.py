@@ -61,10 +61,10 @@ bullets = []
 #floor and walls
 surfaces = []
 
-surfaces.append(Surface(0, screen_height-16, 16, screen_width))
-surfaces.append(Surface(0, 0, screen_height-16, 16))
-surfaces.append(Surface(screen_width-16, 0, screen_height-16, 16))
-surfaces.append(Surface(0, 0, 16, screen_width))
+surfaces.append(Surface(0, screen_height-16, 16, screen_width)) #bottom surface
+surfaces.append(Surface(0, 0, screen_height-16, 16)) #left wall
+surfaces.append(Surface(screen_width-16, 0, screen_height-16, 16)) #right wall
+surfaces.append(Surface(0, 0, 16, screen_width)) #top surface
 
 shotLoop = 0
 running = True
@@ -114,11 +114,12 @@ while running:
                 shotLoop = 1
 
     for bullet in bullets:
-        cond1, _, _ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
-
-        if cond1 == False:
+        cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
+        cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
+        #if the bullet didn't hit the wall or exited the screen let him travel
+        if cond1 == False and cond2 == False:
             bullet.circle.y -= 2
-        else:
+        else: 
             bullets.remove(bullet)
 
     for surface in surfaces:
@@ -131,10 +132,6 @@ while running:
         if cond1:
             enemies.circle.Move(normal1 * depth1)
             enemies.bounce(normal1, 0.9)  
-        
-            
-
-
     
     cond, normal, depth = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, player.rect.Vertices())
     if(cond):
