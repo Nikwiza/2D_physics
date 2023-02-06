@@ -1,6 +1,8 @@
 from collision import *
 from physics import *
 import pygame
+import numpy as np
+from random import randint
 from objects import *
 
 class Player(object):
@@ -21,7 +23,23 @@ class Projectile(object):
 
 class Enemy(object):
     def __init__(self):
-        self.circle = Circle(screen_height/2, 0, 200, 0.1, 30)
+        self.circle = Circle(screen_height//2, 46, 200, 0.1, 30)
+
+    def update(self):
+        self.circle.x += self.circle.vel[0]
+        self.circle.y += self.circle.vel[1]
+    
+    def bounce(self, normal):
+        v_new = self.circle.vel - 2 * np.dot(self.circle.vel, normal) * normal
+        self.circle.vel = v_new + [randint(-5, 5),randint(-5, 5)]
+        self.update()
+
+
+# def resolveCollision(bodyA, bodyB, normal, depth):
+
+#     j = - (1*f-e)
+#     bodyA.vel += j / bodyA.mass * normal
+#     bodyB.vel -= j / bodyB.mass * normal
 
 pygame.init()
 
@@ -81,6 +99,7 @@ def drawGameWindow():
             
     enemies.circle.draw(screen, "black")
     pygame.display.update()
+
 while running:
     Clock.tick(60)
 
@@ -95,6 +114,7 @@ while running:
     if key[pygame.K_RIGHT]:
         player.rect.x += 2
             
+    enemies.update()
 
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
@@ -120,8 +140,16 @@ while running:
 
     for wall in walls:
         cond, normal, depth = IntersectPolygons(wall.rect.Vertices(), player.rect.Vertices())
+        cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, wall.rect.Vertices())
         if(cond):
             player.rect.Move(normal * depth / 2)
+        
+        if cond1:
+            enemies.bounce(normal1)
+            
+        
+        #if(cond1 and enemies.circle.x):
+
 
     
     cond, normal, depth = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, player.rect.Vertices())

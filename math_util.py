@@ -7,8 +7,11 @@ def distance(a, b):
     return math.sqrt(dx * dx + dy * dy)
 
 def normalize(vector):
-     invLen = 1 / math.sqrt(vector.x * vector.x + vector.y * vector.y)
-     return Vector2(vector.x * invLen, vector.y * invLen)
+    if(vector.x != 0 or vector.y != 0):
+        invLen = 1 / math.sqrt(vector.x * vector.x + vector.y * vector.y)
+        return Vector2(vector.x * invLen, vector.y * invLen)
+    
+    return Vector2(0,0)
 
 def findArithmeticMean(vertices):
     sumX = 0
