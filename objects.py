@@ -26,6 +26,7 @@ class Circle:
         self.force = [0.,0.]
         self.surface = circumference**2 * pi
         self.grounded = False
+        self.cor = 1 #coefficient of restitution
 
     #Drawing function : win -> pygame window
 
@@ -53,7 +54,6 @@ class Rectangle:
         self.height = height
         self.force = [0.,0.]
         self.vel = [0.,0.]
-        self.surface = height*width
         self.grounded = False
 
         if width == -1:
@@ -62,7 +62,6 @@ class Rectangle:
             self.width = width
 
         self.surface = self.height*self.width
-
         self.centerx = self.x + self.width//2
         self.centery = self.y + self.height//2
         self.rotation_angle = 0

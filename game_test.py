@@ -7,11 +7,11 @@ from objects import *
 
 class Player(object):
     def __init__(self):
-        self.rect = Rectangle(screen_width/2,screen_height-32,50,0.2,16)
+        self.rect = Rectangle(screen_width/2,screen_height-41,50,0.2,40,20)
 
 class Surface(object):
-    def __init__(self):
-        self.rect = Rectangle(0, screen_height-16, 0, 0, 16,screen_width)
+    def __init__(self, x, y, height, width):
+        self.rect = Rectangle(x, y, 0, 0, height, width)
 
 class Projectile(object):
     def __init__(self,x,y):
@@ -22,14 +22,15 @@ class Projectile(object):
 
 class Enemy(object):
     def __init__(self):
-        self.circle = Circle(screen_height//2, 46, 200, 1, 30)
+        self.circle = Circle(screen_height//2, 46, 50, 0.01, 20)
+        self.circle.cor = 1.3
 
     def update(self):
         self.circle.x += self.circle.vel[0]
         self.circle.y += self.circle.vel[1]
     
     def bounce(self, normal, damping_factor):
-        reflected_velocity = self.circle.vel - 2 * np.dot(self.circle.vel, normal) * normal
+        reflected_velocity = self.circle.vel - (1 + self.circle.cor) * np.dot(self.circle.vel, normal) * normal
 
         #apply damping factor
         reflected_velocity *= damping_factor
@@ -41,21 +42,10 @@ class Enemy(object):
         #add the random deviation to the reflected velocity
         new_velocity = reflected_velocity + deviation
 
+        self.circle.vel = new_velocity
         #update position based on new velocity
-        self.circle.x += new_velocity[0]
-        self.circle.y += new_velocity[1] 
-
-
-
-# def resolveCollision(bodyA, bodyB, normal, depth):
-#     relativeVelocity = bodyB.vel - bodyA.vel
-#     e = bodyB.restitution
-
-#     j = - (1+e) * np.dot(relativeVelocity, normal)
-
-#     j /= (1 / bodyA.mass)
-#     bodyA.vel += j / bodyA.mass * normal
-#     bodyB.vel -= j / bodyB.mass * normal
+        self.circle.x += self.circle.vel[0]
+        self.circle.y += self.circle.vel[1]
 
 pygame.init()
 
@@ -68,8 +58,13 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 enemies = Enemy()
 player = Player()
 bullets = []
-surface = Surface()
+#floor and walls
+surfaces = []
 
+surfaces.append(Surface(0, screen_height-16, 16, screen_width))
+surfaces.append(Surface(0, 0, screen_height-16, 16))
+surfaces.append(Surface(screen_width-16, 0, screen_height-16, 16))
+surfaces.append(Surface(0, 0, 16, screen_width))
 
 shotLoop = 0
 running = True
@@ -80,11 +75,13 @@ Clock = pygame.time.Clock()
 def drawGameWindow():
     screen.fill((255,255,255))
     player.rect.draw(screen, "green")
-    surface.rect.draw(screen, "black") 
 
     for bullet in bullets:
         bullet.circle.draw(screen, "red")
-            
+    
+    for surface in surfaces:
+        surface.rect.draw(screen, "black")
+
     enemies.circle.draw(screen, "black")
     pygame.display.update()
 
@@ -124,13 +121,17 @@ while running:
         else:
             bullets.remove(bullet)
 
-    cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
-    cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, surface.rect.Vertices())
-    if(cond):
-        player.rect.Move(normal * depth / 2)
+    for surface in surfaces:
+        cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
+        if(cond):
+            player.rect.Move(normal * depth)
+
+        cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, surface.rect.Vertices())
+
+        if cond1:
+            enemies.circle.Move(normal1 * depth1)
+            enemies.bounce(normal1, 0.9)  
         
-    if cond1:
-        enemies.bounce(normal1, 0.9)
             
 
 

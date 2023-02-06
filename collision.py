@@ -12,7 +12,6 @@ screen = pygame.display.set_mode((screen_height,screen_width))
 
 def IntersectPolygons(verticesA, verticesB):
     depth = math.inf
-    normal = Vector2(0,0)
     for i in range(len(verticesA)):
         v1 = verticesA[i] 
         v2 = verticesA[(i+1)%len(verticesA)]
@@ -99,7 +98,6 @@ def IntersectCircles(centerA, radiusA, centerB, radiusB):
 
 def IntersectCirclePolygon(circleCenter, circleRadius, vertices):
     depth = math.inf
-    normal = Vector2(0,0)
 
     for i in range(len(vertices)):
         v1 = vertices[i] 
