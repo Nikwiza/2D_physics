@@ -31,10 +31,7 @@ def force(o, force):
     o.force += force
     return
 
-def update(win, movable): 
-    for o in movable:
-        
-
+def update(win, o): 
         # F are all the forces acting on the body
         
         Fa = np.array(o.force)
@@ -65,7 +62,4 @@ def update(win, movable):
             o.y = pos-o.height
 
         o.vel = [pnX[1, -1], pnY[1, -1]]
-        print("Velocity_after")
-        print(o.vel)
-        o.draw(win)
 

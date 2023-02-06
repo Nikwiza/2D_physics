@@ -36,8 +36,8 @@ class Circle:
     def position(self):
         return Vector2(self.x, self.y)
 
-    def draw(self, win):
-        pygame.draw.circle(win,(0,0,255), (self.x, self.y), self.circumference)
+    def draw(self, win, col):
+        pygame.draw.circle(win, col, (self.x, self.y), self.circumference)
     
 
     
