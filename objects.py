@@ -65,7 +65,6 @@ class Rectangle:
 
         self.centerx = self.x + self.width//2
         self.centery = self.y + self.height//2
-        self.col = (0, 0, 255)
         self.rotation_angle = 0
 
 
@@ -88,15 +87,13 @@ class Rectangle:
         
         return [v1, v2, v3, v4]
         
-    def draw(self, win):
-            pygame.draw.rect(win,self.col, (self.x, self.y, self.width, self.height))
+    def draw(self, win, col):
+            pygame.draw.rect(win, col, (self.x, self.y, self.width, self.height))
     
     def Move(self, amount):
             self.x += amount.x
             self.y += amount.y
     
-    def changeColor(self, col):
-        self.col = col
     
 
 
