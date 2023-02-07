@@ -84,6 +84,7 @@ class Rectangle:
         self.surface = self.height*self.width
         self.centerx = self.x + self.width//2
         self.centery = self.y + self.height//2
+
         collidable.append(self)
 
 
