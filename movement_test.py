@@ -49,7 +49,7 @@ while run:
 
 
     win.fill((0,0,0))
-    physics.update(win)
+    physics.update_all(win)
     pygame.display.update()
 
 pygame.quit()

@@ -15,7 +15,9 @@ class Surface(object):
 
 class Projectile(object):
     def __init__(self,x,y):
-        self.circle = Circle(x, y, 20, 0.1, 5)
+        # self.circle = Circle(x, y, 20, 0.1, 5) 
+        self.circle = Rectangle(x, y, 0.1, 0.1, 15, 7)
+        self.circle.angular_speed = 15
 
     def draw(self,win):
         self.circle(win)
@@ -70,6 +72,7 @@ surfaces.append(Surface(0, 0, 16, screen_width)) #top surface
 shotLoop = 0
 running = True
 key = ""
+pause = True
 
 Clock = pygame.time.Clock()
 
@@ -87,6 +90,7 @@ def drawGameWindow():
     pygame.display.update()
 
 while running:
+    
     Clock.tick(60)
 
     if(shotLoop > 0):
@@ -115,11 +119,14 @@ while running:
                 shotLoop = 1
 
     for bullet in bullets:
-        cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
-        cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
+        # cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
+        cond1,_,_ = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, bullet.circle.Vertices())
+        # cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
+        cond2,_,_ = IntersectPolygons(bullet.circle.Vertices(), surfaces[3].rect.Vertices())
         #if the bullet didn't hit the wall or exited the screen let him travel
         if cond1 == False and cond2 == False:
-            bullet.circle.y -= 2
+            bullet.circle.vel[1] = -50
+            update(bullet.circle)
         else: 
             bullets.remove(bullet)
 
@@ -140,6 +147,9 @@ while running:
 
     update(enemies.circle)
     update(player.rect)
+
+ 
+
 
     drawGameWindow()
     

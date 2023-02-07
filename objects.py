@@ -12,6 +12,11 @@ from pygame.locals import *
 #################################
 
 
+# Instances that are colidable
+
+collidable = []
+
+
 ########  CIRCLE  #########
 
 class Circle:
@@ -27,6 +32,15 @@ class Circle:
         self.surface = circumference**2 * pi
         self.grounded = False
         self.cor = 1 #coefficient of restitution
+
+        # Angular movement
+        self.rotation_angle = 0
+        self.angular_speed = 0
+        self.torque = 0
+        self.inertia_mom = 1
+
+
+        collidable.append(self)
 
     #Drawing function : win -> pygame window
 
@@ -61,10 +75,16 @@ class Rectangle:
         else:
             self.width = width
 
+        # Angular movement
+        self.rotation_angle = 0
+        self.angular_speed = 0
+        self.torque = 0
+        self.inertia_mom = 1
+
         self.surface = self.height*self.width
         self.centerx = self.x + self.width//2
         self.centery = self.y + self.height//2
-        self.rotation_angle = 0
+        collidable.append(self)
 
 
     def GetCorner(self, tempX, tempY):
@@ -87,7 +107,13 @@ class Rectangle:
         return [v1, v2, v3, v4]
         
     def draw(self, win, col):
-            pygame.draw.rect(win, col, (self.x, self.y, self.width, self.height))
+        img = pygame.Surface((self.width, self.height))
+        img.fill(col)
+        img.set_colorkey("black")
+        img = pygame.transform.rotate(img, self.rotation_angle)
+        rect = img.get_rect()
+        rect.center = (self.x+(self.width//2), self.y+ (self.height//2))
+        win.blit(img, rect)
     
     def Move(self, amount):
             self.x += amount.x

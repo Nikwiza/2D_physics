@@ -1,1 +1,2 @@
- axis = Vector2(-edge.x, edge.y)
+    # for bullet in bullets:
+    #     update(bullet.circle)
