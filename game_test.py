@@ -21,8 +21,9 @@ class Projectile(object):
         self.circle(win)
 
 class Enemy(object):
-    def __init__(self):
-        self.circle = Circle(screen_height//2, 46, 50, 0.01, 20)
+    def __init__(self, x, y, circumference):
+        self.circle = Circle(x, y, 100, 0.01, circumference)
+        #screen_width//2, 46, 50, 0.01, 20
         self.circle.cor = 1.3
 
     def update(self):
@@ -55,7 +56,7 @@ screen_width = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 
-enemies = Enemy()
+enemies = Enemy(screen_width//2, 46, 30)
 player = Player()
 bullets = []
 #floor and walls
