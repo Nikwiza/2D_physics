@@ -31,7 +31,7 @@ def force(o, force):
     o.force += force
     return
 
-def update(win, o): 
+def update(o): 
         # F are all the forces acting on the body
         
         Fa = np.array(o.force)

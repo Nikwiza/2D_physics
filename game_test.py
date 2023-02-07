@@ -7,7 +7,7 @@ from objects import *
 
 class Player(object):
     def __init__(self):
-        self.rect = Rectangle(screen_width/2,screen_height-41,50,0.2,40,20)
+        self.rect = Rectangle(screen_width/2,screen_height-41,50,0.02,35,20)
 
 class Surface(object):
     def __init__(self, x, y, height, width):
@@ -138,8 +138,9 @@ while running:
     if(cond):
         running = False
 
-    update(screen, enemies.circle)
-    
+    update(enemies.circle)
+    update(player.rect)
+
     drawGameWindow()
     
 
