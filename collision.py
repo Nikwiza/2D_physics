@@ -178,7 +178,61 @@ def ProjectCircle(center, radius, axis):
 
     return min, max
 
+sqr1 = Rectangle(250,150,1000,0.2,50)
+sqr2 = Rectangle(120,150,1000,0.2,50)
 
+sqr1.rotation_angle = 45
+
+running = True
+key = ""
+Clock = pygame.time.Clock()
+
+while running:
+    screen.fill((255,255,255))
+
+    sqr1.draw(screen, "green")
+    sqr2.draw(screen, "red")
+
+    
+    
+    vertices1 = sqr1.Vertices()
+    vertices2 = sqr2.Vertices()
+
+    screen.fill("green", ((vertices1[0].x, vertices1[0].y), (3, 3))) 
+    screen.fill("green", ((vertices1[1].x, vertices1[1].y), (3, 3))) 
+    screen.fill("green", ((vertices1[2].x, vertices1[2].y), (3, 3))) 
+    screen.fill("green", ((vertices1[3].x, vertices1[3].y), (3, 3))) 
+    # screen.fill("red", ((vertices2[0].x, vertices2[0].y), (3, 3))) 
+    # screen.fill("red", ((vertices2[1].x, vertices2[1].y), (3, 3))) 
+    # screen.fill("red", ((vertices2[2].x, vertices2[2].y), (3, 3))) 
+    # screen.fill("red", ((vertices2[3].x, vertices2[3].y), (3, 3))) 
+    # intersect of two polygons
+    if IntersectPolygons(vertices1, vertices2)[0]:
+       print("EEEEEEEEEEE")
+
+
+    if key == "s":
+        sqr1.y += 1
+    elif key == "w":
+        sqr1.y -= 1
+    if key == "d":
+        sqr1.x += 1
+    if key == "a":
+        sqr1.x -= 1
+
+    pygame.display.update()
+    Clock.tick(60)
+
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            pygame.quit()
+            running = False
+        if e.type == MOUSEBUTTONDOWN:
+            print(e.pos)
+        if e.type == KEYDOWN:
+            key = e.unicode
+        if e.type == KEYUP:
+            key = ""
 
 
 

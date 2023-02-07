@@ -88,15 +88,14 @@ class Rectangle:
 
 
     def GetCorner(self, tempX, tempY):
-        #translate
-        x = tempX + self.centerx
-        y = tempY + self.centery
         angle = math.radians(self.rotation_angle)
-        #apply rotation
-        rotatedX = x*math.cos(angle) - y*math.sin(angle)
-        rotatedY = x*math.sin(angle) + y*math.cos(angle)
-        
-        return Vector2(rotatedX,rotatedY)
+        rotatedX = tempX*math.cos(angle) - tempY*math.sin(angle)
+        rotatedY = tempX*math.sin(angle) + tempY*math.cos(angle)  
+
+        x = rotatedX + self.centerx
+        y = rotatedY + self.centery        
+
+        return Vector2(x,y)
     
     def Vertices(self):
         v1 = self.GetCorner(self.x - self.centerx, self.y - self.centery) #top, left

@@ -127,7 +127,8 @@ while running:
         if cond1 == False and cond2 == False:
             bullet.circle.vel[1] = -50
             update(bullet.circle)
-        else: 
+        else:
+            print("EEEEEEE")
             bullets.remove(bullet)
 
     for surface in surfaces:
