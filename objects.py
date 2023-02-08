@@ -32,8 +32,6 @@ class Circle:
         self.surface = circumference**2 * pi
         self.grounded = False
         self.cor = 1 #coefficient of restitution
-        self.centerx = x
-        self.centery = y
 
         # Angular movement
         self.rotation_angle = 0

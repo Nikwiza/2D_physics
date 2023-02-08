@@ -153,20 +153,22 @@ while running:
                     shotLoop = 1
 
         for bullet in bullets:
-                cond1,_,_ = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, bullet.rect.Vertices())
-                cond2,_,_ = IntersectPolygons(surfaces[3].rect.Vertices(), bullet.rect.Vertices())
-                #if the bullet didn't hit the enemy or exited the screen let him travel
-                if cond1 == True:
-                    score+=1
-                    if(enemy.health == 0):
-                        running = False
-                    enemy.health -= 1
-                    
-                if cond1 == False and cond2 == False:
-                    bullet.rect.vel[1] = -50
-                    update(bullet.rect)
-                else:
-                    bullets.remove(bullet)
+            #If the bullet hits the enemy
+            cond1 = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, bullet.rect.Vertices())[0]
+            #If the bullet exits the screen
+            cond2 = IntersectPolygons(surfaces[3].rect.Vertices(), bullet.rect.Vertices())[0]
+            
+            if cond1 == True:
+                score+=1
+                if(enemy.health == 0):
+                    running = False
+                enemy.health -= 1
+            #If the bullet didn't hit the enemy or exited the screen let him travel    
+            if cond1 == False and cond2 == False:
+                bullet.rect.vel[1] = -50
+                update(bullet.rect)
+            else:
+                bullets.remove(bullet)
 
         for surface in surfaces:
             cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
@@ -174,7 +176,6 @@ while running:
                 player.rect.Move(normal * depth)
 
             cond1, normal1, depth1 = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, surface.rect.Vertices())
-
             if cond1:
                 enemy.circle.Move(normal1 * depth1)
                 enemy.bounce(normal1, 0.9)  
