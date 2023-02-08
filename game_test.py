@@ -30,6 +30,7 @@ class Enemy(object):
     def __init__(self, x, y, circumference):
         self.circle = Circle(x, y, 100, 0.01, circumference)
         self.circle.cor = 1.3
+        self.health = 10
 
     def update(self):
         self.circle.x += self.circle.vel[0]
@@ -52,6 +53,15 @@ class Enemy(object):
         #update position based on new velocity
         self.circle.x += self.circle.vel[0]
         self.circle.y += self.circle.vel[1]
+    
+    def draw(self, screen):
+        enemy.circle.draw(screen, "green")
+        #health bar
+        hb_pos_x = enemy.circle.x-enemy.circle.circumference
+        hb_pos_y = enemy.circle.y-enemy.circle.circumference-10
+        diameter = enemy.circle.circumference*2
+        pygame.draw.rect(screen, (255, 0, 0), (hb_pos_x, hb_pos_y, diameter, 10))
+        pygame.draw.rect(screen, (0, 128, 0), (hb_pos_x, hb_pos_y, diameter - ((diameter/10) * (10 - self.health)), 10))
     
 
 pygame.init()
@@ -107,7 +117,7 @@ def drawGameWindow():
     for surface in surfaces:
         surface.rect.draw(screen, "black")
 
-    enemy.circle.draw(screen, "green")
+    enemy.draw(screen)
 
     pygame.display.update()
 
@@ -148,6 +158,10 @@ while running:
                 #if the bullet didn't hit the enemy or exited the screen let him travel
                 if cond1 == True:
                     score+=1
+                    if(enemy.health == 0):
+                        running = False
+                    enemy.health -= 1
+                    
                 if cond1 == False and cond2 == False:
                     bullet.rect.vel[1] = -50
                     update(bullet.rect)
