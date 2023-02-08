@@ -83,8 +83,8 @@ pygame.transform.scale(ch_image, (ch_width, ch_height))
 pygame.transform.scale(bg_image, (screen_width, screen_height))
 
 surfaces.append(Surface(0, screen_height-16, 16, screen_width)) #bottom surface
-surfaces.append(Surface(0, 0, screen_height-16, 16)) #left wall
-surfaces.append(Surface(screen_width-16, 0, screen_height-16, 16)) #right wall
+surfaces.append(Surface(0, 0, screen_height-16, 8)) #left wall
+surfaces.append(Surface(screen_width-16, 0, screen_height-16, 8)) #right wall
 surfaces.append(Surface(0, 0, 1, screen_width)) #top surface
 
 shotLoop = 0
