@@ -60,9 +60,15 @@ def update(o):
         pnA = eulerN(t1, t2, t2-t1, np.array([o.rotation_angle, o.angular_speed]), ddpA)
         o.rotation_angle = pnA[0, -1]
         o.angular_speed = pnA[1,-1]
-        
+
         o.x = pnX[0, -1]
         o.y = pnY[0, -1]
+
+        #Updateing the center lines
+
+        if(type(o) == objects.Rectangle):
+            o.centerx = o.x + o.width//2
+            o.centery = o.y + o.height//2
 
         # If the object is grounded, the y position is returned to 0
         if o.grounded:
@@ -108,5 +114,5 @@ def update_all(win):
         o.vel = [pnX[1, -1], pnY[1, -1]]
         print("Velocity_after")
         print(o.vel)
-        o.draw(win, "red")
+        o.draw(win, "yellow")
 

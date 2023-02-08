@@ -4,10 +4,15 @@ import pygame
 import numpy as np
 import random
 from objects import *
+from pygame.locals import *
+
+ch_height = 40
+ch_width = 24
 
 class Player(object):
     def __init__(self):
-        self.rect = Rectangle(screen_width/2,screen_height-41,50,0.02,35,20)
+        # self.rect = Rectangle(screen_width/2,screen_height-41,50,0.02,35,20)
+        self.rect = Rectangle(screen_width/2-50,screen_height-50,50,0.02,ch_height,ch_width)
 
 class Surface(object):
     def __init__(self, x, y, height, width):
@@ -63,6 +68,10 @@ player = Player()
 bullets = []
 #floor and walls
 surfaces = []
+bg_image = pygame.image.load("img/index.png")
+ch_image = pygame.image.load("img/char.jpg").convert_alpha()
+pygame.transform.scale(ch_image, (ch_width, ch_height))
+pygame.transform.scale(bg_image, (screen_width, screen_height))
 
 surfaces.append(Surface(0, screen_height-16, 16, screen_width)) #bottom surface
 surfaces.append(Surface(0, 0, screen_height-16, 16)) #left wall
@@ -72,13 +81,14 @@ surfaces.append(Surface(0, 0, 16, screen_width)) #top surface
 shotLoop = 0
 running = True
 key = ""
-pause = True
+pause = False
 
 Clock = pygame.time.Clock()
 
 def drawGameWindow():
-    screen.fill((255,255,255))
-    player.rect.draw(screen, "green")
+    screen.fill((0,0,0))
+    screen.blit(bg_image, (0,0))
+    player.rect.draw(screen, ch_image)
 
     for bullet in bullets:
         bullet.circle.draw(screen, "red")
@@ -90,67 +100,78 @@ def drawGameWindow():
     pygame.display.update()
 
 while running:
-    
-    Clock.tick(60)
+    if pause:
+        Clock.tick(60)
 
-    if(shotLoop > 0):
-        shotLoop += 1
-    if(shotLoop > 3):
-        shotLoop = 0
-    
-    key = pygame.key.get_pressed()
-    if key[pygame.K_LEFT]:
-        player.rect.x += -2
-    if key[pygame.K_RIGHT]:
-        player.rect.x += 2
-            
-    enemies.update()
+        if(shotLoop > 0):
+            shotLoop += 1
+        if(shotLoop > 3):
+            shotLoop = 0
+        
+        key = pygame.key.get_pressed()
+        if key[pygame.K_LEFT]:
+            player.rect.x += -2
+        if key[pygame.K_RIGHT]:
+            player.rect.x += 2
+                
+        enemies.update()
 
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            running = False
-        if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-            running = False
-        if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_SPACE and shotLoop == 0:
-                if(len(bullets) < 5):
-                    bullets.append(Projectile(round(player.rect.x + player.rect.width//2), round(player.rect.y + player.rect.height//2)))
+        for e in pygame.event.get():
+            if (key[pygame.K_RETURN]):  # Enter key
+                pause = False
+            if e.type == pygame.QUIT:
+                running = False
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                running = False
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_SPACE and shotLoop == 0: 
+                    if(len(bullets) < 5):
+                        bullets.append(Projectile(round(player.rect.x + player.rect.width//2), round(player.rect.y + player.rect.height//2)))
 
-                shotLoop = 1
+                    shotLoop = 1
 
-    for bullet in bullets:
-        # cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
-        cond1,_,_ = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, bullet.circle.Vertices())
-        # cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
-        cond2,_,_ = IntersectPolygons(bullet.circle.Vertices(), surfaces[3].rect.Vertices())
-        #if the bullet didn't hit the wall or exited the screen let him travel
-        if cond1 == False and cond2 == False:
-            bullet.circle.vel[1] = -50
-            update(bullet.circle)
-        else:
-            bullets.remove(bullet)
+        for bullet in bullets:
+            # cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
+            cond1,_,_ = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, bullet.circle.Vertices())
+            # cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
+            cond2,_,_ = IntersectPolygons(bullet.circle.Vertices(), surfaces[3].rect.Vertices())
+            #if the bullet didn't hit the wall or exited the screen let him travel
+            if cond1 == False and cond2 == False:
+                bullet.circle.vel[1] = -50
+                update(bullet.circle)
+            else:
+                bullets.remove(bullet)
 
-    for surface in surfaces:
-        cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
+        for surface in surfaces:
+            cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
+            if(cond):
+                player.rect.Move(normal * depth)
+
+            cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, surface.rect.Vertices())
+
+            if cond1:
+                enemies.circle.Move(normal1 * depth1)
+                enemies.bounce(normal1, 0.9)  
+        
+        cond, normal, depth = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, player.rect.Vertices())
         if(cond):
-            player.rect.Move(normal * depth)
+            running = False
 
-        cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, surface.rect.Vertices())
+        update(enemies.circle)
+        update(player.rect)
 
-        if cond1:
-            enemies.circle.Move(normal1 * depth1)
-            enemies.bounce(normal1, 0.9)  
     
-    cond, normal, depth = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, player.rect.Vertices())
-    if(cond):
-        running = False
-
-    update(enemies.circle)
-    update(player.rect)
-
- 
 
 
-    drawGameWindow()
+        drawGameWindow()
     
+    else:
+        key = pygame.key.get_pressed()
+        for e in pygame.event.get():
+            if (key[pygame.K_RETURN]): # Enter key
+                pause = True
+        drawGameWindow()
+
+
+
 

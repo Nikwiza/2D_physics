@@ -32,6 +32,8 @@ class Circle:
         self.surface = circumference**2 * pi
         self.grounded = False
         self.cor = 1 #coefficient of restitution
+        self.centerx = x
+        self.centery = y
 
         # Angular movement
         self.rotation_angle = 0
@@ -52,7 +54,8 @@ class Circle:
         return Vector2(self.x, self.y)
 
     def draw(self, win, col):
-        pygame.draw.circle(win, col, (self.x, self.y), self.circumference)
+        pygame.draw.circle(win, "dark green", (self.x, self.y), self.circumference)
+        
     
 
     
@@ -107,13 +110,18 @@ class Rectangle:
         return [v1, v2, v3, v4]
         
     def draw(self, win, col):
-        img = pygame.Surface((self.width, self.height))
-        img.fill(col)
-        img.set_colorkey("black")
+        if(type(col) == pygame.Surface):
+            img = col
+            img.set_colorkey("white")
+        else:
+            img = pygame.Surface((self.width, self.height))
+            img.fill(col)
+            img.set_colorkey("black")
         img = pygame.transform.rotate(img, self.rotation_angle)
         rect = img.get_rect()
         rect.center = (self.x+(self.width//2), self.y+ (self.height//2))
         win.blit(img, rect)
+        
     
     def Move(self, amount):
             self.x += amount.x
