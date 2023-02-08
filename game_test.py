@@ -12,7 +12,6 @@ score = 0
 
 class Player(object):
     def __init__(self):
-        # self.rect = Rectangle(screen_width/2,screen_height-41,50,0.02,35,20)
         self.rect = Rectangle(screen_width/2-50,screen_height-50,50,0.02,ch_height,ch_width)
 
 class Surface(object):
@@ -21,17 +20,15 @@ class Surface(object):
 
 class Projectile(object):
     def __init__(self,x,y):
-        # self.circle = Circle(x, y, 20, 0.1, 5) 
-        self.circle = Rectangle(x, y, 0.1, 0.1, 15, 7)
-        self.circle.angular_speed = 15
+        self.rect = Rectangle(x, y, 0.1, 0.1, 15, 7)
+        self.rect.angular_speed = 15
 
     def draw(self,win):
-        self.circle(win)
+        self.rect(win)
 
 class Enemy(object):
     def __init__(self, x, y, circumference):
         self.circle = Circle(x, y, 100, 0.01, circumference)
-        #screen_width//2, 46, 50, 0.01, 20
         self.circle.cor = 1.3
 
     def update(self):
@@ -64,7 +61,7 @@ screen_width = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 
-enemies = Enemy(screen_width//2, 46, 30)
+enemy = Enemy(screen_width//2, 46, 30)
 player = Player()
 bullets = []
 #floor and walls
@@ -77,7 +74,7 @@ pygame.transform.scale(bg_image, (screen_width, screen_height))
 surfaces.append(Surface(0, screen_height-16, 16, screen_width)) #bottom surface
 surfaces.append(Surface(0, 0, screen_height-16, 16)) #left wall
 surfaces.append(Surface(screen_width-16, 0, screen_height-16, 16)) #right wall
-surfaces.append(Surface(0, 0, 16, screen_width)) #top surface
+surfaces.append(Surface(0, 0, 1, screen_width)) #top surface
 
 shotLoop = 0
 running = True
@@ -97,12 +94,12 @@ def drawGameWindow():
     screen.blit(scr, (15,15))
 
     for bullet in bullets:
-        bullet.circle.draw(screen, "gray")
+        bullet.rect.draw(screen, "gray")
     
     for surface in surfaces:
         surface.rect.draw(screen, "black")
 
-    enemies.circle.draw(screen, "black")
+    enemy.circle.draw(screen, "black")
     pygame.display.update()
 
 while running:
@@ -120,7 +117,7 @@ while running:
         if key[pygame.K_RIGHT]:
             player.rect.x += 2
                 
-        enemies.update()
+        enemy.update()
 
         for e in pygame.event.get():
             if (key[pygame.K_RETURN]):  # Enter key
@@ -137,16 +134,14 @@ while running:
                     shotLoop = 1
 
         for bullet in bullets:
-            # cond1,_,_ = IntersectCircles(bullet.circle.position(), bullet.circle.circumference, enemies.circle.position(),enemies.circle.circumference)
-            cond1,_,_ = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, bullet.circle.Vertices())
-            # cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
-            cond2,_,_ = IntersectPolygons(bullet.circle.Vertices(), surfaces[3].rect.Vertices())
-            #if the bullet didn't hit the wall or exited the screen let him travel
+            cond1,_,_ = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, bullet.rect.Vertices())
+            cond2,_,_ = IntersectPolygons(surfaces[3].rect.Vertices(), bullet.rect.Vertices())
+            #if the bullet didn't hit the enemy or exited the screen let him travel
             if cond1 == True:
                 score+=1
             if cond1 == False and cond2 == False:
-                bullet.circle.vel[1] = -50
-                update(bullet.circle)
+                bullet.rect.vel[1] = -50
+                update(bullet.rect)
             else:
                 bullets.remove(bullet)
 
@@ -155,17 +150,17 @@ while running:
             if(cond):
                 player.rect.Move(normal * depth)
 
-            cond1, normal1, depth1 = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, surface.rect.Vertices())
+            cond1, normal1, depth1 = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, surface.rect.Vertices())
 
             if cond1:
-                enemies.circle.Move(normal1 * depth1)
-                enemies.bounce(normal1, 0.9)  
+                enemy.circle.Move(normal1 * depth1)
+                enemy.bounce(normal1, 0.9)  
         
-        cond, normal, depth = IntersectCirclePolygon(enemies.circle.position(), enemies.circle.circumference, player.rect.Vertices())
+        cond, normal, depth = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, player.rect.Vertices())
         if(cond):
             running = False
 
-        update(enemies.circle)
+        update(enemy.circle)
         update(player.rect)
 
     
