@@ -8,6 +8,7 @@ from pygame.locals import *
 
 ch_height = 40
 ch_width = 24
+score = 0
 
 class Player(object):
     def __init__(self):
@@ -89,9 +90,14 @@ def drawGameWindow():
     screen.fill((0,0,0))
     screen.blit(bg_image, (0,0))
     player.rect.draw(screen, ch_image)
+    
+    #Score
+    font = pygame.font.SysFont(None, 30)
+    scr = font.render(str(score), True, "white")
+    screen.blit(scr, (15,15))
 
     for bullet in bullets:
-        bullet.circle.draw(screen, "red")
+        bullet.circle.draw(screen, "gray")
     
     for surface in surfaces:
         surface.rect.draw(screen, "black")
@@ -136,6 +142,8 @@ while running:
             # cond2,_,_ = IntersectCirclePolygon(bullet.circle.position(), bullet.circle.circumference, surfaces[3].rect.Vertices())
             cond2,_,_ = IntersectPolygons(bullet.circle.Vertices(), surfaces[3].rect.Vertices())
             #if the bullet didn't hit the wall or exited the screen let him travel
+            if cond1 == True:
+                score+=1
             if cond1 == False and cond2 == False:
                 bullet.circle.vel[1] = -50
                 update(bullet.circle)
