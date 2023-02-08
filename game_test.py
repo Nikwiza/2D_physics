@@ -52,6 +52,7 @@ class Enemy(object):
         #update position based on new velocity
         self.circle.x += self.circle.vel[0]
         self.circle.y += self.circle.vel[1]
+    
 
 pygame.init()
 
@@ -82,6 +83,11 @@ key = ""
 pause = False
 
 Clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 30)
+
+def drawText(text, font, text_col, x, y):
+    scr = font.render(text, True, text_col)
+    screen.blit(scr, (x,y))
 
 def drawGameWindow():
     screen.fill((0,0,0))
@@ -89,9 +95,11 @@ def drawGameWindow():
     player.rect.draw(screen, ch_image)
     
     #Score
-    font = pygame.font.SysFont(None, 30)
-    scr = font.render(str(score), True, "white")
-    screen.blit(scr, (15,15))
+    drawText(str(score), font, "white", 15, 15)
+
+    #Pause screen
+    if(pause == False):
+        drawText("CLICK ENTER TO UNPAUSE", font, "white", screen_width/2-132, screen_height/2)
 
     for bullet in bullets:
         bullet.rect.draw(screen, "gray")
@@ -99,7 +107,8 @@ def drawGameWindow():
     for surface in surfaces:
         surface.rect.draw(screen, "black")
 
-    enemy.circle.draw(screen, "black")
+    enemy.circle.draw(screen, "green")
+
     pygame.display.update()
 
 while running:
@@ -110,13 +119,13 @@ while running:
             shotLoop += 1
         if(shotLoop > 3):
             shotLoop = 0
-        
+                
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT]:
             player.rect.x += -2
         if key[pygame.K_RIGHT]:
             player.rect.x += 2
-                
+                    
         enemy.update()
 
         for e in pygame.event.get():
@@ -134,16 +143,16 @@ while running:
                     shotLoop = 1
 
         for bullet in bullets:
-            cond1,_,_ = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, bullet.rect.Vertices())
-            cond2,_,_ = IntersectPolygons(surfaces[3].rect.Vertices(), bullet.rect.Vertices())
-            #if the bullet didn't hit the enemy or exited the screen let him travel
-            if cond1 == True:
-                score+=1
-            if cond1 == False and cond2 == False:
-                bullet.rect.vel[1] = -50
-                update(bullet.rect)
-            else:
-                bullets.remove(bullet)
+                cond1,_,_ = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, bullet.rect.Vertices())
+                cond2,_,_ = IntersectPolygons(surfaces[3].rect.Vertices(), bullet.rect.Vertices())
+                #if the bullet didn't hit the enemy or exited the screen let him travel
+                if cond1 == True:
+                    score+=1
+                if cond1 == False and cond2 == False:
+                    bullet.rect.vel[1] = -50
+                    update(bullet.rect)
+                else:
+                    bullets.remove(bullet)
 
         for surface in surfaces:
             cond, normal, depth = IntersectPolygons(surface.rect.Vertices(), player.rect.Vertices())
@@ -155,7 +164,7 @@ while running:
             if cond1:
                 enemy.circle.Move(normal1 * depth1)
                 enemy.bounce(normal1, 0.9)  
-        
+            
         cond, normal, depth = IntersectCirclePolygon(enemy.circle.position(), enemy.circle.circumference, player.rect.Vertices())
         if(cond):
             running = False
@@ -163,18 +172,13 @@ while running:
         update(enemy.circle)
         update(player.rect)
 
-    
-
-
         drawGameWindow()
-    
+        
     else:
         key = pygame.key.get_pressed()
         for e in pygame.event.get():
             if (key[pygame.K_RETURN]): # Enter key
                 pause = True
         drawGameWindow()
-
-
 
 
