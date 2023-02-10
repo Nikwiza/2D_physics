@@ -20,7 +20,7 @@ class Surface(object):
 
 class Projectile(object):
     def __init__(self,x,y):
-        self.rect = Rectangle(x, y, 0.1, 0.1, 15, 7)
+        self.rect = Rectangle(x, y, 0.1, 0.1, 24, 10)
         self.rect.angular_speed = 15
 
     def draw(self,win):
@@ -55,7 +55,7 @@ class Enemy(object):
         self.circle.y += self.circle.vel[1]
     
     def draw(self, screen):
-        enemy.circle.draw(screen, "green")
+        enemy.circle.draw(screen, enemy_image)
         #health bar
         hb_pos_x = enemy.circle.x-enemy.circle.circumference
         hb_pos_y = enemy.circle.y-enemy.circle.circumference-10
@@ -79,6 +79,8 @@ bullets = []
 surfaces = []
 bg_image = pygame.image.load("img/index.png")
 ch_image = pygame.image.load("img/char.jpg").convert_alpha()
+enemy_image = pygame.image.load("img/Enemy.png").convert_alpha()
+sword_image = pygame.image.load("img/Sword.png").convert_alpha()
 pygame.transform.scale(ch_image, (ch_width, ch_height))
 pygame.transform.scale(bg_image, (screen_width, screen_height))
 
@@ -112,7 +114,7 @@ def drawGameWindow():
         drawText("CLICK ENTER TO UNPAUSE", font, "white", screen_width/2-132, screen_height/2)
 
     for bullet in bullets:
-        bullet.rect.draw(screen, "gray")
+        bullet.rect.draw(screen, sword_image )
     
     for surface in surfaces:
         surface.rect.draw(screen, "black")

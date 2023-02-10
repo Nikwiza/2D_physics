@@ -2,6 +2,7 @@ from euler_meth import eulerN
 import numpy as np
 import pygame
 import objects
+from rk4 import rk4
 
 # g -> Gravitational constant
 g = 9.81
@@ -57,9 +58,12 @@ def update(o):
 
 
         # Updateing rotation
-        pnA = eulerN(t1, t2, t2-t1, np.array([o.rotation_angle, o.angular_speed]), ddpA)
+        pnA = rk4(t1, t2, t2-t1, np.array([o.rotation_angle, o.angular_speed]), ddpA)
         o.rotation_angle = pnA[0, -1]
         o.angular_speed = pnA[1,-1]
+
+
+
 
         o.x = pnX[0, -1]
         o.y = pnY[0, -1]
@@ -112,7 +116,6 @@ def update_all(win):
             o.y = pos-o.height
 
         o.vel = [pnX[1, -1], pnY[1, -1]]
-        print("Velocity_after")
         print(o.vel)
         o.draw(win, "yellow")
 

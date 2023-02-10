@@ -52,7 +52,15 @@ class Circle:
         return Vector2(self.x, self.y)
 
     def draw(self, win, col):
-        pygame.draw.circle(win, "dark green", (self.x, self.y), self.circumference)
+        #pygame.draw.circle(win, "dark green", (self.x, self.y), self.circumference)
+        if(type(col) == pygame.Surface):
+            img = col
+            img = pygame.transform.rotate(img, self.rotation_angle)
+            rect = img.get_rect()
+            rect.center = (self.x, self.y)
+            win.blit(img, rect)
+        else:
+            pygame.draw.circle(win, "dark green", (self.x, self.y), self.circumference)
         
     
 
@@ -110,7 +118,6 @@ class Rectangle:
     def draw(self, win, col):
         if(type(col) == pygame.Surface):
             img = col
-            img.set_colorkey("white")
         else:
             img = pygame.Surface((self.width, self.height))
             img.fill(col)
